@@ -1,0 +1,36 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "ZWJ_MSPM0_Framework",
+            "type": "ccs-debug",
+            "request": "launch",
+            "projectInfo": {
+                "name": "ZWJ_MSPM0_Framework",
+                "resourceId": "/ZWJ_MSPM0_Framework"
+            },
+            "connections": [
+                {
+                    "name": "Texas Instruments XDS110 USB Debug Probe",
+                    "cores": [
+                        {
+                            "name": "CORTEX_M0P",
+                            "debuggerSettings": {
+                                "data": "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\" ?>\n<PropertyValues/>\n"
+                            }
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "name": "freertos_builds_LP_MSPM0G3507_release_ticlang",
+            "type": "ccs-debug",
+            "request": "launch",
+            "projectInfo": {
+                "name": "freertos_builds_LP_MSPM0G3507_release_ticlang",
+                "resourceId": "/freertos_builds_LP_MSPM0G3507_release_ticlang"
+            }
+        }
+    ]
+}
