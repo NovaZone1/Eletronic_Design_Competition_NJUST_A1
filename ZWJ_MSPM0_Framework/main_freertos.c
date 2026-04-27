@@ -1,10 +1,10 @@
+#include "std_cpp.h"
 #include "ti_drivers_config.h"
 #include "ti_msp_dl_config.h"
 #include <FreeRTOS.h>
 #include <pthread.h>
 #include <stdint.h>
 #include <task.h>
-#include "std_cpp.h"
 
 #ifdef __ICCARM__
 #include <DLib_Threads.h>

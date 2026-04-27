@@ -21,7 +21,6 @@ void MainInitCpp() {
  * @note 该任务负责机器人的实时控制逻辑
  */
 void ControlCpp() {
-
     while (1) {
         /***     最大循环频率：1000Hz     ***/
         vTaskDelay(pdMS_TO_TICKS(1));
