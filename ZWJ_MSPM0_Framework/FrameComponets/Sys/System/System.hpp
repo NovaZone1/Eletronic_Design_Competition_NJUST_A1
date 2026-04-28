@@ -7,6 +7,7 @@
 #include "std_math.hpp"
 #include "stdint.h"
 #include "typeinfo"
+#include "arm_math.h"
 
 /**
  * @note 第 168 行后续需要取消注释

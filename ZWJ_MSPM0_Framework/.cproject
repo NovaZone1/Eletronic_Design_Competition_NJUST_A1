@@ -58,6 +58,8 @@
                                     <listOptionValue value="${PROJECT_ROOT}/FrameComponets/Bsps/bsp_system"/>
                                     <listOptionValue value="${PROJECT_ROOT}/FrameComponets/Bsps/iic"/>
                                     <listOptionValue value="${PROJECT_ROOT}/FrameComponets/Bsps/uart"/>
+                                    <listOptionValue value="${COM_TI_MSPM0_SDK_INSTALL_DIR}/source/third_party/CMSIS/DSP/Include"/>
+                                    <listOptionValue value="${COM_TI_MSPM0_SDK_INSTALL_DIR}/source/third_party/CMSIS/DSP/lib/ticlang/m0p/arm_cortexM0l_math.a"/>
                                 </option>
                                 <option id="com.ti.ccstudio.buildDefinitions.TMS470_TICLANG_4.0.compilerID.DEFINE.1375255894" superClass="com.ti.ccstudio.buildDefinitions.TMS470_TICLANG_4.0.compilerID.DEFINE" valueType="definedSymbols">
                                     <listOptionValue value="${INHERITED_SYMBOLS}"/>

@@ -9,10 +9,13 @@
 /**
  * Import the modules used in this configuration.
  */
-const Board  = scripting.addModule("/ti/driverlib/Board");
-const GPIO   = scripting.addModule("/ti/driverlib/GPIO", {}, false);
-const GPIO1  = GPIO.addInstance();
-const SYSCTL = scripting.addModule("/ti/driverlib/SYSCTL");
+const Board         = scripting.addModule("/ti/driverlib/Board");
+const GPIO          = scripting.addModule("/ti/driverlib/GPIO", {}, false);
+const GPIO1         = GPIO.addInstance();
+const SYSCTL        = scripting.addModule("/ti/driverlib/SYSCTL");
+const TIMER         = scripting.addModule("/ti/driverlib/TIMER", {}, false);
+const TIMER1        = TIMER.addInstance();
+const ProjectConfig = scripting.addModule("/ti/project_config/ProjectConfig");
 
 /**
  * Write custom configuration values to the imported modules.
@@ -51,6 +54,14 @@ GPIO1.associatedPins[0].pin.$assign = "PB22";
 
 SYSCTL.clockTreeEn = true;
 
+TIMER1.$name           = "TIMER_0";
+TIMER1.timerMode       = "PERIODIC_UP";
+TIMER1.timerPeriod     = "0.8192 ms";
+TIMER1.timerStartTimer = true;
+TIMER1.interrupts      = ["ZERO"];
+
+ProjectConfig.genLibCMSIS = true;
+
 /**
  * Pinmux solution for unlocked pins/peripherals. This ensures that minor changes to the automatic solver in a future
  * version of the tool will not impact the pinmux you originally saw.  These lines can be completely deleted in order to
@@ -59,3 +70,4 @@ SYSCTL.clockTreeEn = true;
 Board.peripheral.$suggestSolution          = "DEBUGSS";
 Board.peripheral.swclkPin.$suggestSolution = "PA20";
 Board.peripheral.swdioPin.$suggestSolution = "PA19";
+TIMER1.peripheral.$suggestSolution         = "TIMA0";

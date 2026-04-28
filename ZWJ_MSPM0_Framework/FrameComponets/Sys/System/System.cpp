@@ -1,4 +1,5 @@
 #include "System.hpp"
+#include "bsp_dwt.h"
 
 RobotSystem &System = RobotSystem::GetInstance(); // 定义全局唯一的机器人系统实例
 
@@ -10,7 +11,7 @@ void RobotSystem::Init(bool self_check) {
     // Monitor::GetInstance().Init(&huart5, nullptr, false);
 
     // // 初始化DWT计时器
-    // BspDwt_Init(CPU_HERT_F407_MHZ);
+    BspDwt_Init(CPU_HERT_MSPM0_MHZ);
 
     // // 输出欢迎信息
     // monitor.LogSpec("/----^-- Welcome to ROBOT SYSTEM --^----/");
@@ -50,7 +51,7 @@ void RobotSystem::Run() {
     // }
 
     // 更新全局时间
-    // runtime_tick = BspDwt_GetTimeline_Sec();
+    runtime_tick = BspDwt_GetTimeline_Sec();
 
     // 零开销巡检所有 App 状态
     for (int i = 0; i < 24; i++) {

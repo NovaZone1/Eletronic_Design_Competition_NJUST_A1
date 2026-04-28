@@ -1,6 +1,8 @@
 #include "RtosCpp.hpp"
 #include "FreeRTOS.h"
 #include "MainFrame.hpp"
+#include "System.hpp"
+#include "bsp_dwt.h"
 #include "std_cpp.h"
 #include "task.h"
 
@@ -12,6 +14,7 @@
  * 主要是因为怕线程爆栈，主函数的栈深基本上摸不到底的
  */
 void MainInitCpp() {
+    System.Init();
     MainFrameCpp();
 }
 
@@ -21,7 +24,9 @@ void MainInitCpp() {
  * @note 该任务负责机器人的实时控制逻辑
  */
 void ControlCpp() {
+
     while (1) {
+
         /***     最大循环频率：1000Hz     ***/
         vTaskDelay(pdMS_TO_TICKS(1));
     }
@@ -33,8 +38,11 @@ void ControlCpp() {
  */
 void StateCoreCpp() {
     TickType_t appTick = xTaskGetTickCount();
+    StateCore &core = StateCore::GetInstance();
 
     while (1) {
+        // // 运行状态机核心
+        core.Run();
         /***     最大循环频率：250Hz     ***/
         vTaskDelayUntil(&appTick, pdMS_TO_TICKS(4));
     }
@@ -48,6 +56,8 @@ void ApplicationCpp() {
     TickType_t appTick = xTaskGetTickCount();
 
     while (1) {
+        // 更新所有应用
+        System._Update_Applications();
         /***     最大循环频率：200Hz     ***/
         vTaskDelayUntil(&appTick, pdMS_TO_TICKS(5));
     }
@@ -61,6 +71,9 @@ void RobotSystemCpp() {
     TickType_t appTick = xTaskGetTickCount();
 
     while (1) {
+        // 运行系统主进程
+        System.Run();
+
         /***    最大循环频率：200Hz     ***/
         vTaskDelayUntil(&appTick, pdMS_TO_TICKS(5));
     }
