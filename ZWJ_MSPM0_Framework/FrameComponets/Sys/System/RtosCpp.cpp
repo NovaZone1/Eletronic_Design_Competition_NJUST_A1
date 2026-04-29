@@ -26,7 +26,6 @@ void MainInitCpp() {
 void ControlCpp() {
 
     while (1) {
-
         /***     最大循环频率：1000Hz     ***/
         vTaskDelay(pdMS_TO_TICKS(1));
     }
@@ -69,6 +68,8 @@ void ApplicationCpp() {
  */
 void RobotSystemCpp() {
     TickType_t appTick = xTaskGetTickCount();
+    static uint32_t last_dwt_cnt = 0;
+    static float total_time = 0.0f; // 累计时间
 
     while (1) {
         // 运行系统主进程

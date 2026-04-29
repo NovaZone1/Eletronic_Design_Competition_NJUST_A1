@@ -1,28 +1,24 @@
 /**
  * These arguments were used when this file was generated. They will be automatically applied on subsequent loads
  * via the GUI or CLI. Run CLI with '--help' for additional information on how to override these arguments.
- * @cliArgs --device "MSPM0G350X" --part "Default" --package "LQFP-64(PM)" --product "mspm0_sdk@2.10.00.04"
- * @v2CliArgs --device "MSPM0G3507" --package "LQFP-64(PM)" --product "mspm0_sdk@2.10.00.04"
+ * @cliArgs --device "MSPM0G350X" --part "Default" --package "LQFP-48(PT)" --product "mspm0_sdk@2.10.00.04"
+ * @v2CliArgs --device "MSPM0G3507" --package "LQFP-48(PT)" --product "mspm0_sdk@2.10.00.04"
  * @versions {"tool":"1.27.0+4565"}
  */
 
 /**
  * Import the modules used in this configuration.
  */
-const Board         = scripting.addModule("/ti/driverlib/Board");
-const GPIO          = scripting.addModule("/ti/driverlib/GPIO", {}, false);
-const GPIO1         = GPIO.addInstance();
-const SYSCTL        = scripting.addModule("/ti/driverlib/SYSCTL");
-const TIMER         = scripting.addModule("/ti/driverlib/TIMER", {}, false);
-const TIMER1        = TIMER.addInstance();
-const ProjectConfig = scripting.addModule("/ti/project_config/ProjectConfig");
+const Board  = scripting.addModule("/ti/driverlib/Board");
+const GPIO   = scripting.addModule("/ti/driverlib/GPIO", {}, false);
+const GPIO1  = GPIO.addInstance();
+const SYSCTL = scripting.addModule("/ti/driverlib/SYSCTL");
+const TIMER  = scripting.addModule("/ti/driverlib/TIMER", {}, false);
+const TIMER1 = TIMER.addInstance();
 
 /**
  * Write custom configuration values to the imported modules.
  */
-const divider2       = system.clockTree["HFCLK4MFPCLKDIV"];
-divider2.divideValue = 2;
-
 const divider6       = system.clockTree["PLL_CLK2X_DIV"];
 divider6.divideValue = 4;
 
@@ -44,13 +40,10 @@ multiplier2.multiplyValue = 10;
 const mux8       = system.clockTree["HSCLKMUX"];
 mux8.inputSelect = "HSCLKMUX_SYSPLL2X";
 
-Board.genPeriphPinFile = true;
-Board.genFileMod.$name = "ti_driverlib_BoardPins0";
 
 GPIO1.$name                         = "LED";
-GPIO1.port                          = "PORTB";
-GPIO1.associatedPins[0].$name       = "PIN";
-GPIO1.associatedPins[0].pin.$assign = "PB22";
+GPIO1.associatedPins[0].$name       = "LED_PIN";
+GPIO1.associatedPins[0].pin.$assign = "PA14";
 
 SYSCTL.clockTreeEn = true;
 
@@ -59,8 +52,6 @@ TIMER1.timerMode       = "PERIODIC_UP";
 TIMER1.timerPeriod     = "0.8192 ms";
 TIMER1.timerStartTimer = true;
 TIMER1.interrupts      = ["ZERO"];
-
-ProjectConfig.genLibCMSIS = true;
 
 /**
  * Pinmux solution for unlocked pins/peripherals. This ensures that minor changes to the automatic solver in a future
