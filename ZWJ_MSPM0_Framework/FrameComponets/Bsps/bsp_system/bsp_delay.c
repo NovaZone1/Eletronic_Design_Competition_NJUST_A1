@@ -106,7 +106,7 @@ void BspDelay_ms(uint32_t ms) {
         // FreeRTOS已启动
         if (ms <= 10) {
             // ≤10ms：用忙等（保证精度）
-            Bsp_DelayUs(ms * 1000);
+            BspDelay_us(ms * 1000);
         } else {
             // >10ms：用FreeRTOS非阻塞延时
             vTaskDelay(pdMS_TO_TICKS(ms));
