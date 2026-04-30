@@ -6,7 +6,6 @@
 #include "bsp_dwt.h"
 #include "std_cpp.h"
 #include "task.h"
-#include "ultrasonic.hpp"
 
 /******      主初始化函数      ******/
 /**
@@ -71,8 +70,6 @@ void ApplicationCpp() {
  */
 void RobotSystemCpp() {
     TickType_t appTick = xTaskGetTickCount();
-    static uint32_t last_dwt_cnt = 0;
-    static float total_time = 0.0f; // 累计时间
 
     while (1) {
         // 运行系统主进程
