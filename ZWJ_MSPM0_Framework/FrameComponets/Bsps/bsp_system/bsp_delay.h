@@ -6,7 +6,6 @@ extern "C" {
 #endif
 
 #include <stdint.h>
-#include <stdbool.h>
 
 void BspDelay_us(uint32_t us);
 void BspDelay_ms(uint32_t ms);
