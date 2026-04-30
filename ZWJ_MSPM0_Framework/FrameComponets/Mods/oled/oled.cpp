@@ -113,3 +113,9 @@ void OLED::ShowNum(uint16_t x, uint16_t y, uint16_t param) {
     string str = to_string(param);
     ShowString(x, y, str);
 }
+
+void OLED::ShowFloat(uint16_t x, uint16_t y, float param) {
+    char buf[16];
+    snprintf(buf, sizeof(buf), "%.2f", param); // 格式化为两位小数
+    ShowString(x, y, std::string(buf));
+}

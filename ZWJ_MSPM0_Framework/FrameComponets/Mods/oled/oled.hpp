@@ -20,6 +20,7 @@ private:
     void Showchar(uint16_t x, uint16_t y, char param);
     void ShowString(uint16_t x, uint16_t y, string param);
     void ShowNum(uint16_t x, uint16_t y, uint16_t param);
+    void ShowFloat(uint16_t x, uint16_t y, float param);
 
     void Print(uint16_t x, uint16_t y, char c) {
         Showchar(x, y, c);
@@ -29,6 +30,9 @@ private:
     }
     void Print(uint16_t x, uint16_t y, uint16_t num) {
         ShowNum(x, y, num);
+    }
+    void Print(uint16_t x, uint16_t y, float f) {
+        ShowFloat(x, y, f);
     }
 
 public:
