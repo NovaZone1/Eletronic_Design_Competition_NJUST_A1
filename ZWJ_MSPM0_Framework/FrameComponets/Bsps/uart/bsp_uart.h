@@ -9,7 +9,9 @@ extern "C" {
 #include <stdbool.h>
 #include <stdint.h>
 
-typedef void (*BspUart_InstRxCallback)(uint32_t uart_base, uint8_t *rx_data, uint16_t rx_size);
+#define BSPUART_MAX_CANINSTS 2 // 最多支持2个BSP_UART实例
+
+typedef void (*BspUart_InstRxCallback)(UART_Regs *uart_regs, uint8_t *rx_data, uint16_t rx_size);
 
 typedef enum {
     BspUart_Type_Normal,
@@ -40,8 +42,8 @@ typedef struct {
 void BspUart_InstRegister(BspUart_Instance *inst, UART_Regs *uart_regs, BspUart_Type rx_type, BspUart_Type tx_type,
                           uint16_t rx_setlen, BspUart_InstRxCallback rx_callback);
 
-void BspUart_ConfigDMA(BspUart_Instance *inst, DMA_Regs *dma_regs, uint8_t rx_dma_channel_id,
-                       uint8_t tx_dma_channel_id);
+void BspUart_ConfigDMA(BspUart_Instance *inst, DMA_Regs *dma_regs, uint8_t rx_dma_channel_id, uint8_t tx_dma_channel_id,
+                       uint32_t src_addr, uint32_t dest_addr);
 
 void BspUart_Transmit(BspUart_Instance inst, uint8_t *tx_data, uint16_t tx_len);
 
