@@ -204,27 +204,27 @@ inline Color operator/(const Color &vec, float scalar) { // 向量数除
  * @name 动态数组
  * @warning 该类仅提供接口定义，具体实现请自行完成
  */
-// class DynamicArray {
-// private:
-//     byte *data;
-//     size_t size;
+class DynamicArray {
+private:
+    byte *data;
+    size_t size;
 
-// public:
-//     DynamicArray(size_t size) : size(size) {
-//         (void) size;
-//         data = new byte[size];
-//     }
-//     ~DynamicArray() {
-//         delete[] data;
-//     }
+public:
+    DynamicArray(size_t size) : size(size) {
+        (void) size;
+        data = new byte[size];
+    }
+    ~DynamicArray() {
+        delete[] data;
+    }
 
-//     byte &operator[](size_t index) {
-//         return data[index];
-//     }
-//     const byte &operator[](size_t index) const {
-//         return data[index];
-//     }
-// };
+    byte &operator[](size_t index) {
+        return data[index];
+    }
+    const byte &operator[](size_t index) const {
+        return data[index];
+    }
+};
 
 /******      常用数学公式      ******/
 namespace StdMath {
