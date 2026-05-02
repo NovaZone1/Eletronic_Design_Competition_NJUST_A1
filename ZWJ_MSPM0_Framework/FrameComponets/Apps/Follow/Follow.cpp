@@ -1,24 +1,74 @@
 #include "Follow.hpp"
+#include "SpeedMixer.hpp"
 
 Follow &follow = Follow::GetInstance();
 
 void Follow::Start() {
-    // 初始化超声波
     this->follow_ultrasonic.Init();
     this->follow_ultrasonic.Enable();
 
+    for (int i = 0; i < 5; i++) {
+        dist_buffer[i] = -1.0f;
+    }
+
     // 注意：这里的输出限幅 speed_limit 必须是 rpm 值
     this->follow_pid.Init(5.0f, 0.2f, 0.5f, false);
-    this->follow_pid.SetLimit(30.0f, 150.0f, 0.5f);
-    this->follow_pid.SetDeadband(0.5f, 2.0f);
+    this->follow_pid.SetLimit(30.0f, speed_limit, 0.5f);
+    this->follow_pid.SetDeadband(1.0f, 3.0f);
 }
 
 void Follow::Update() {
-    this->real_dist = this->follow_ultrasonic.GetDistance();
-    this->targ_dist = 20.0f;
+    if (!is_enabled) {
+        ResetController();
+        return;
+    }
 
-    float targ_speed = this->follow_pid.Calc(targ_dist, real_dist, speed_limit);
+    float raw_dist = follow_ultrasonic.GetDistance();
+
+    if (!IsDistanceValid(raw_dist)) {
+        last_status = App::Warning;
+        return;
+    }
+    last_status = App::Normal;
+
+    float median_dist = Filter::Median(dist_buffer, raw_dist, 5, dist_index);
+    filtered_dist = Filter::FirstOrderComplementary(median_dist, last_filtered_dist, 0.4f);
+    last_filtered_dist = filtered_dist;
+
+    real_dist = filtered_dist;
+    speed_offset = follow_pid.Calc(targ_dist, real_dist, speed_limit);
 
     // motor_left.SetSpeed(targ_speed);
     // motor_right.SetSpeed(targ_speed);
+
+    // 核心改动：调用SpeedMixer设置跟车偏移
+    speed_mixer.SetFollowOffset(speed_offset);
+}
+
+void Follow::SetEnable(bool enable) {
+    if (enable && !is_enabled) {
+        ResetController();
+    }
+    is_enabled = enable;
+}
+
+void Follow::SetTargetDistance(float dist) {
+    if (dist < 10.0f)
+        dist = 10.0f;
+    if (dist > 50.0f)
+        dist = 50.0f;
+    targ_dist = dist;
+}
+
+App::Status Follow::GetStatus() {
+    return last_status;
+}
+
+bool Follow::IsDistanceValid(float dist) {
+    return (dist >= min_valid_dist && dist <= max_valid_dist);
+}
+
+void Follow::ResetController() {
+    follow_pid.Reset();
+    speed_offset = 0.0f;
 }

@@ -25,6 +25,7 @@
 #include "Follow.hpp"
 #include "System.hpp"
 #include "Track.hpp"
+#include "Follow.hpp"
 
 /**
  * @brief 主程序入口
@@ -32,4 +33,5 @@
  */
 void MainFrameCpp() {
     System.RegistApp(track);
+    System.RegistApp(follow);
 }
