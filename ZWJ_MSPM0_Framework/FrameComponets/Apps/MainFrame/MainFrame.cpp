@@ -24,11 +24,12 @@
 #include "std_cpp.h"
 #include "Follow.hpp"
 #include "System.hpp"
+#include "Track.hpp"
 
 /**
  * @brief 主程序入口
  * @warning 严禁阻塞
  */
 void MainFrameCpp() {
-    System.RegistApp(follow_app);
+    System.RegistApp(track);
 }

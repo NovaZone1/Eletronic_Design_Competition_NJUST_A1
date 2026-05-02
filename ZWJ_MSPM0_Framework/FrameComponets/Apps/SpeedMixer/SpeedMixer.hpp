@@ -109,3 +109,5 @@ private:
      */
     Source GetHighestPrioritySource();
 };
+
+extern SpeedMixer &speed_mixer;

@@ -1,8 +1,4 @@
 #include "SpeedMixer.hpp"
-#include "Track.hpp"
-#include "Follow.hpp"
-#include "Overtake.hpp"
-#include "Navigation.hpp"
 
 SpeedMixer &speed_mixer = SpeedMixer::GetInstance();
 

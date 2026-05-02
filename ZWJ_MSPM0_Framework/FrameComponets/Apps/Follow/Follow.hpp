@@ -23,4 +23,4 @@ private:
 public:
 };
 
-extern Follow &follow_app;
+extern Follow &follow;

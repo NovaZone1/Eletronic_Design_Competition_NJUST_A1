@@ -67,7 +67,7 @@ void RobotSystem::Run() {
 #endif
 
     sys_oled.Show<float>(1, 8, 3.14);
-    sys_oled.Show<float>(2, 8, follow_app.real_dist);
+    sys_oled.Show<float>(2, 8, follow.real_dist);
 
     // 零开销巡检所有 App 状态
     // for (int i = 0; i < 24; i++) {

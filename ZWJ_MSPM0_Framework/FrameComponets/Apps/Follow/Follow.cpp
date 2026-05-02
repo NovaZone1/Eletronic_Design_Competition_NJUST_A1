@@ -1,6 +1,6 @@
 #include "Follow.hpp"
 
-Follow &follow_app = Follow::GetInstance();
+Follow &follow = Follow::GetInstance();
 
 void Follow::Start() {
     // 初始化超声波

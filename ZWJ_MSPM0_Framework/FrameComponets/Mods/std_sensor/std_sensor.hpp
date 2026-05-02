@@ -12,31 +12,14 @@ namespace StdSensor {
 }
 
 class GpioSensor {
+    friend class Track;
+
 private:
-    uint8_t sensor_nums;
-    DynamicArray sensor_states;
-    StdSensor::TriggerPolarity *polarities;
-    BspGpio_Instance *gpio_instance;
+    bool sensor_states[8];
+    StdSensor::TriggerPolarity polarities[8]; // 补充：原polarities也是指针，建议改为数组
+    BspGpio_Instance gpio_instance[8];        // 改为数组，存储8个GPIO实例
 
 public:
-    GpioSensor(uint8_t nums) : sensor_nums(nums), sensor_states(nums) {
-        if (nums > 0) {
-            polarities = new StdSensor::TriggerPolarity[nums];
-            gpio_instance = new BspGpio_Instance[nums];
-        }
-        // 状态全部初始化为 false
-        for (size_t i = 0; i < nums; i++) {
-            sensor_states[i] = false;
-        }
-    }
-    ~GpioSensor() {
-        // 如果传入的传感器数量大于0，则释放动态分配的内存
-        if (sensor_nums > 0) {
-            delete[] polarities;
-            delete[] gpio_instance;
-        }
-    }
-
     /// @brief GPIO传感器初始化函数
     void Init(GPIO_Regs **ports, uint32_t *pins, StdSensor::TriggerPolarity *polarities);
 
@@ -45,7 +28,4 @@ public:
 
     /// @brief 获取指定索引传感器的状态
     bool GetState(uint8_t index) const;
-
-    /// @brief 获取传感器数量
-    uint8_t GetSensorNums() const;
 };

@@ -1,25 +1,23 @@
 #include "std_sensor.hpp"
 
 void GpioSensor::Init(GPIO_Regs **ports, uint32_t *pins, StdSensor::TriggerPolarity *polarities) {
-    // 检验参数有效性
-    if (sensor_nums == 0 || ports == nullptr || pins == nullptr || polarities == nullptr) {
-        return; // 无效参数，直接返回
+    if (ports == nullptr || pins == nullptr || polarities == nullptr) {
+        return;
     }
 
-    // 保存极性配置
-    for (uint8_t i = 0; i < sensor_nums; i++) {
+    // 保存极性（原代码用指针指向外部数组，改为拷贝到内部数组更安全）
+    for (uint8_t i = 0; i < 8; i++) {
         this->polarities[i] = polarities[i];
     }
 
-    // 注册每个传感器对应的GPIO实例
-    for (uint8_t i = 0; i < sensor_nums; i++) {
-        // 注册GPIO实例，暂时不使用外部中断回调函数，因此传入nullptr
-        BspGpio_InstRegister(&gpio_instance[i], ports[i], pins[i]);
+    // 注册GPIO实例（现在gpio_instance是数组，访问合法）
+    for (uint8_t i = 0; i < 8; i++) {
+        BspGpio_InstRegister(&this->gpio_instance[i], ports[i], pins[i]);
     }
 }
 
 void GpioSensor::Update() {
-    for (size_t i = 0; i < sensor_nums; i++) {
+    for (size_t i = 0; i < 8; i++) {
         // 读取当前引脚电平
         uint32_t pin_state = BspGpio_GetState(&gpio_instance[i]);
 
@@ -38,15 +36,11 @@ void GpioSensor::Update() {
 }
 
 bool GpioSensor::GetState(uint8_t index) const {
-    if (index >= sensor_nums) {
+    if (index >= 8) {
         return false; // 索引越界，返回false
     }
 
     return sensor_states[index];
-}
-
-uint8_t GpioSensor::GetSensorNums() const {
-    return sensor_nums;
 }
 
 // GpioSensor test_sensor(8);
