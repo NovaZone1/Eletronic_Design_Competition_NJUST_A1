@@ -4,17 +4,14 @@
 #include "std_math.hpp"
 
 // 该灰度遇到黑线灯灭，遇到白线灯亮
-namespace StdSensor
-{
-    typedef enum
-    {
+namespace StdSensor {
+    typedef enum {
         ACTIVE_HIGH,
         ACTIVE_LOW,
     } TriggerPolarity;
 }
 
-class GpioSensor
-{
+class GpioSensor {
 private:
     uint8_t sensor_nums;
     DynamicArray sensor_states;
@@ -22,24 +19,19 @@ private:
     BspGpio_Instance *gpio_instance;
 
 public:
-    GpioSensor(uint8_t nums) : sensor_nums(nums), sensor_states(nums)
-    {
-        if (nums > 0)
-        {
+    GpioSensor(uint8_t nums) : sensor_nums(nums), sensor_states(nums) {
+        if (nums > 0) {
             polarities = new StdSensor::TriggerPolarity[nums];
             gpio_instance = new BspGpio_Instance[nums];
         }
         // 状态全部初始化为 false
-        for (size_t i = 0; i < nums; i++)
-        {
+        for (size_t i = 0; i < nums; i++) {
             sensor_states[i] = false;
         }
     }
-    ~GpioSensor()
-    {
+    ~GpioSensor() {
         // 如果传入的传感器数量大于0，则释放动态分配的内存
-        if (sensor_nums > 0)
-        {
+        if (sensor_nums > 0) {
             delete[] polarities;
             delete[] gpio_instance;
         }
