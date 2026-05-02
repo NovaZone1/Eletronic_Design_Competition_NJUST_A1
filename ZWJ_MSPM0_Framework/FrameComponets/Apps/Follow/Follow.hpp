@@ -19,7 +19,7 @@ public:
     float real_dist = 0.0f;
     float targ_dist = 20.0f;
     float speed_offset = 0.0f;
-    bool is_enabled = true;
+    bool is_enabled = false;
     App::Status last_status = App::Normal;
 
     void SetEnable(bool enable);

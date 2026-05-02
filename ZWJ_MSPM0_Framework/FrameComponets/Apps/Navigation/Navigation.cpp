@@ -7,3 +7,6 @@ void Navigation::Start() {
 
 void Navigation::Update() {
 }
+
+void Navigation::SetEnable(bool enable) {
+}

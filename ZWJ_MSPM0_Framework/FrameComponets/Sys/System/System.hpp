@@ -58,6 +58,8 @@ public:
     uint8_t prescaler = 1; // 应用预分频
     bool CntFull();        // 监测预分频计数器是否满了
 
+    bool is_enabled = true;
+
     // [开机自检] 系统 SELF_CHECK 阶段集中调用，子类按需重写
     // 返回 true 表示硬件/连接正常，自检通过
     virtual bool WatchPoint() {

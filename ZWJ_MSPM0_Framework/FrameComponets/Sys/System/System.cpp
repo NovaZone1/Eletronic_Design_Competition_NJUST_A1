@@ -328,17 +328,19 @@ void RobotSystem::_Update_Applications() {
         if (app_list[i] != nullptr) {
             // 如果预分频计数器满了，就更新应用
             if (app_list[i]->CntFull()) {
-                // ===== 新增：模式过滤 =====
-                // if (navigation_mode) {
-                //     // 导航模式下只允许导航应用执行
-                //     if (app_list[i] != &navigation_app) {
-                //         continue; // 跳过跟随、巡线等所有其他应用
-                //     }
-                // }
-                // =========================
-                // 自动更新应用状态缓存，供零开销跨库查询
-                app_list[i]->status = app_list[i]->GetStatus();
-                app_list[i]->Update();
+                if (app_list[i]->is_enabled) {
+                    // ===== 新增：模式过滤 =====
+                    // if (navigation_mode) {
+                    //     // 导航模式下只允许导航应用执行
+                    //     if (app_list[i] != &navigation_app) {
+                    //         continue; // 跳过跟随、巡线等所有其他应用
+                    //     }
+                    // }
+                    // =========================
+                    // 自动更新应用状态缓存，供零开销跨库查询
+                    app_list[i]->status = app_list[i]->GetStatus();
+                    app_list[i]->Update();
+                }
             }
         }
     }

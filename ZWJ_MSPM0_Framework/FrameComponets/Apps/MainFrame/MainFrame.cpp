@@ -21,17 +21,15 @@
 //          佛祖保佑          永不宕机          永无BUG            //
 ////////////////////////////////////////////////////////////////////
 #include "MainFrame.hpp"
-#include "std_cpp.h"
-#include "Follow.hpp"
+#include "MainStateMachine.hpp"
 #include "System.hpp"
-#include "Track.hpp"
-#include "Follow.hpp"
+#include "std_cpp.h"
 
 /**
  * @brief 主程序入口
  * @warning 严禁阻塞
  */
 void MainFrameCpp() {
-    System.RegistApp(track);
-    System.RegistApp(follow);
+    MainStateMachine::Init();
+    MainStateMachine::Start();
 }
