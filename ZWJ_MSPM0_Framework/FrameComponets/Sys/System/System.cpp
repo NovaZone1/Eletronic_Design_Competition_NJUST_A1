@@ -1,4 +1,5 @@
 #include "System.hpp"
+#include "Follow.hpp"
 #include "bsp_dwt.h"
 
 RobotSystem &System = RobotSystem::GetInstance(); // 定义全局唯一的机器人系统实例
@@ -13,6 +14,9 @@ void RobotSystem::Init(bool self_check) {
     // // 初始化DWT计时器
     BspDwt_Init(CPU_HERT_MSPM0_MHZ);
 
+    sys_oled.Init(OLED_PORT, OLED_SCL_PIN, OLED_PORT, OLED_SDA_PIN);
+    sys_oled.Enable();
+
     // // 输出欢迎信息
     // monitor.LogSpec("/----^-- Welcome to ROBOT SYSTEM --^----/");
     // HAL_Delay(10);
@@ -23,12 +27,12 @@ void RobotSystem::Init(bool self_check) {
     // sys_ledband.Init(&htim4, TIM_CHANNEL_1, 100);
 
     // 定位模块初始化
-    positioner.Init();
+    // positioner.Init();
 
     // 自动开启自检
-    if (self_check) {
-        state = Systems::SELF_CHECK;
-    }
+    // if (self_check) {
+    //     state = Systems::SELF_CHECK;
+    // }
 }
 
 /**
@@ -37,10 +41,10 @@ void RobotSystem::Init(bool self_check) {
  */
 void RobotSystem::Run() {
     // 自检
-    _Update_SelfCheck();
+    // _Update_SelfCheck();
 
     /*--<       正式运行        >--*/
-    Working();
+    // Working();
 
     // 管理 主灯带 状态（50Hz分频）
     // _Update_LedBand();
@@ -53,27 +57,39 @@ void RobotSystem::Run() {
     // 更新全局时间
     runtime_tick = BspDwt_GetTimeline_Sec();
 
+#ifndef __TASK_1_SHOW__
+#define __TASK_1_SHOW__
+    sys_oled.Show<string>(1, 1, "speed: ");
+    sys_oled.Show<string>(2, 1, "dist : ");
+
+    sys_oled.Show<string>(1, 13, "m/s");
+    sys_oled.Show<string>(2, 14, "cm");
+#endif
+
+    sys_oled.Show<float>(1, 8, 3.14);
+    sys_oled.Show<float>(2, 8, follow_app.real_dist);
+
     // 零开销巡检所有 App 状态
-    for (int i = 0; i < 24; i++) {
-        if (app_list[i] != nullptr) {
-            App::Status app_status = app_list[i]->status;
-            if (app_status == App::Error) {
-                // TODO: 用一种不会刷屏的方法打印 Error，或者放到别处
-                // monitor.LogError("App [%s] Fatal Error!", app_list[i]->name);
-                if (state == Systems::WORKING || state == Systems::READY) {
-                    state = Systems::STOP;
-                    // Display.ErrorBlink(15, 300);
-                }
-            } else if (app_status == App::Warning) {
-                // TODO: 用一种不会刷屏的方法打印 Warning，或者放到别处
-                // monitor.LogWarning("App [%s] Warning!", app_list[i]->name);
-                if (state == Systems::WORKING || state == Systems::READY) {
-                    state = Systems::STOP;
-                    // Display.WarningBlink(15, 300);
-                }
-            }
-        }
-    }
+    // for (int i = 0; i < 24; i++) {
+    //     if (app_list[i] != nullptr) {
+    //         App::Status app_status = app_list[i]->status;
+    //         if (app_status == App::Error) {
+    //             // TODO: 用一种不会刷屏的方法打印 Error，或者放到别处
+    //             // monitor.LogError("App [%s] Fatal Error!", app_list[i]->name);
+    //             if (state == Systems::WORKING || state == Systems::READY) {
+    //                 state = Systems::STOP;
+    //                 // Display.ErrorBlink(15, 300);
+    //             }
+    //         } else if (app_status == App::Warning) {
+    //             // TODO: 用一种不会刷屏的方法打印 Warning，或者放到别处
+    //             // monitor.LogWarning("App [%s] Warning!", app_list[i]->name);
+    //             if (state == Systems::WORKING || state == Systems::READY) {
+    //                 state = Systems::STOP;
+    //                 // Display.WarningBlink(15, 300);
+    //             }
+    //         }
+    //     }
+    // }
 
     // static int temp_cnt = 0;
     // // 跟踪变量（非高性能模式下）
@@ -86,15 +102,15 @@ void RobotSystem::Run() {
 /**
  * @brief 机器人开始工作，进入WORKING状态
  */
-void RobotSystem::Working() {
-    if (state == Systems::READY) {
-        if (system_start_to_work_flag) {
-            state = Systems::WORKING;
-            // monitor.LogOK("System is WORKING now!");
-            system_start_to_work_flag = false;
-        }
-    }
-}
+// void RobotSystem::Working() {
+//     if (state == Systems::READY) {
+//         if (system_start_to_work_flag) {
+//             state = Systems::WORKING;
+//             // monitor.LogOK("System is WORKING now!");
+//             system_start_to_work_flag = false;
+//         }
+//     }
+// }
 
 /**
  * @brief 高性能运行进程（1000Hz）
@@ -312,6 +328,14 @@ void RobotSystem::_Update_Applications() {
         if (app_list[i] != nullptr) {
             // 如果预分频计数器满了，就更新应用
             if (app_list[i]->CntFull()) {
+                // ===== 新增：模式过滤 =====
+                // if (navigation_mode) {
+                //     // 导航模式下只允许导航应用执行
+                //     if (app_list[i] != &navigation_app) {
+                //         continue; // 跳过跟随、巡线等所有其他应用
+                //     }
+                // }
+                // =========================
                 // 自动更新应用状态缓存，供零开销跨库查询
                 app_list[i]->status = app_list[i]->GetStatus();
                 app_list[i]->Update();
@@ -323,59 +347,59 @@ void RobotSystem::_Update_Applications() {
 /**
  * @brief 自检（检查所有被Monitor给Watch的变量是否正常）
  */
-void RobotSystem::_Update_SelfCheck() {
-    static uint16_t check_cnt = 0;
-    static bool error_list[24] = {false};
-    static bool warning_list[24] = {false};
+// void RobotSystem::_Update_SelfCheck() {
+//     static uint16_t check_cnt = 0;
+//     static bool error_list[24] = {false};
+//     static bool warning_list[24] = {false};
 
-    if (start_selfcheck_flag && state == Systems::ORIGIN) {
-        start_selfcheck_flag = false;
-        state = Systems::SELF_CHECK;
-    }
+//     if (start_selfcheck_flag && state == Systems::ORIGIN) {
+//         start_selfcheck_flag = false;
+//         state = Systems::SELF_CHECK;
+//     }
 
-    // 处于自检状态时，进行自检
-    if (state != Systems::SELF_CHECK)
-        return;
+//     // 处于自检状态时，进行自检
+//     if (state != Systems::SELF_CHECK)
+//         return;
 
-    /**     确保所有关键Watch在一秒内都持续为使能状态   **/
-    for (uint8_t i = 0; i < 24; i++) {
-        if (app_list[i] != nullptr) {
-            // 遇到有不在线的
-            if (!app_list[i]->WatchPoint() && check_cnt > 100) {
-                error_list[i] = true;
-            }
-        }
-    }
+//     /**     确保所有关键Watch在一秒内都持续为使能状态   **/
+//     for (uint8_t i = 0; i < 24; i++) {
+//         if (app_list[i] != nullptr) {
+//             // 遇到有不在线的
+//             if (!app_list[i]->WatchPoint() && check_cnt > 100) {
+//                 error_list[i] = true;
+//             }
+//         }
+//     }
 
-    check_cnt++;
-    // 先沉默半秒，再持续一秒，总共1.5秒
-    if (check_cnt >= 300) {
-        // 检查是否有错误，如果有错误，进入错误状态
-        bool have_error = false;
-        for (uint8_t i = 0; i < 24; i++) {
-            if (error_list[i]) {
-                have_error = true;
-                // monitor.LogError("App [%s] Self Check Failed!", app_list[i]->name);
-            }
-        }
+//     check_cnt++;
+//     // 先沉默半秒，再持续一秒，总共1.5秒
+//     if (check_cnt >= 300) {
+//         // 检查是否有错误，如果有错误，进入错误状态
+//         bool have_error = false;
+//         for (uint8_t i = 0; i < 24; i++) {
+//             if (error_list[i]) {
+//                 have_error = true;
+//                 // monitor.LogError("App [%s] Self Check Failed!", app_list[i]->name);
+//             }
+//         }
 
-        if (have_error) {
-            // 返回初始状态，看有没有机会修好
-            state = Systems::ORIGIN;
-            check_cnt = 0;
+//         if (have_error) {
+//             // 返回初始状态，看有没有机会修好
+//             state = Systems::ORIGIN;
+//             check_cnt = 0;
 
-            // 重置错误列表
-            memset(error_list, 0, sizeof(error_list));
-            return;
-        } else {
-            // 自检完成，进入READY状态
-            memset(error_list, 0, sizeof(error_list));
-            state = Systems::READY;
-            // monitor.LogOK("System Self-Check Passed!");
-            check_cnt = 0;
-        }
-    }
-}
+//             // 重置错误列表
+//             memset(error_list, 0, sizeof(error_list));
+//             return;
+//         } else {
+//             // 自检完成，进入READY状态
+//             memset(error_list, 0, sizeof(error_list));
+//             state = Systems::READY;
+//             // monitor.LogOK("System Self-Check Passed!");
+//             check_cnt = 0;
+//         }
+//     }
+// }
 
 /**
  * @brief 检查应用预分频计数器是否已满

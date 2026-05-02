@@ -45,7 +45,7 @@ void StateCoreCpp() {
         // // 运行状态机核心
         core.Run();
         /***     最大循环频率：250Hz     ***/
-        vTaskDelayUntil(&appTick, pdMS_TO_TICKS(4));
+        vTaskDelayUntil(&appTick, pdMS_TO_TICKS(5));
     }
 }
 
@@ -61,7 +61,7 @@ void ApplicationCpp() {
         System._Update_Applications();
 
         /***     最大循环频率：200Hz     ***/
-        vTaskDelayUntil(&appTick, pdMS_TO_TICKS(5));
+        vTaskDelayUntil(&appTick, pdMS_TO_TICKS(4));
     }
 }
 

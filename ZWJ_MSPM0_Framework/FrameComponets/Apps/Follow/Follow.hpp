@@ -3,12 +3,15 @@
 #include "SysDefs.hpp"
 #include "System.hpp"
 #include "motor_at8236.hpp"
-#include "ultrasonic.hpp"
 #include "pid.hpp"
+#include "ultrasonic.hpp"
 
 class Follow : public Application {
+    friend class RobotSystem;
+
     SINGLETON(Follow) : Application("Follow") {};
     APPLICATION_OVERRIDE;
+
 private:
     Ultrasonic_Capture follow_ultrasonic;
     Pids follow_pid;
@@ -18,5 +21,6 @@ private:
     float real_dist = 0.0f;
 
 public:
-    
 };
+
+extern Follow &follow_app;

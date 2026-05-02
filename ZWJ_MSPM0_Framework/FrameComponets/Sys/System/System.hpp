@@ -8,6 +8,7 @@
 #include "stdint.h"
 #include "typeinfo"
 #include "arm_math.h"
+#include "oled.hpp"
 
 /**
  * @note 第 168 行后续需要取消注释
@@ -98,72 +99,74 @@ class RobotSystem {
     friend void ApplicationCpp();
     friend void StateCoreCpp();
 
-    SINGLETON(RobotSystem) : Display(*this) {};
+    SINGLETON(RobotSystem) {};
 
 private:
-    void _LedBandControl();
-    void _LedBandDisplayControl();
+    // void _LedBandControl();
+    // void _LedBandDisplayControl();
 
-    void _Update_LedBand();
+    // void _Update_LedBand();
     void _Update_Applications();
-    void _Update_SelfCheck();
+    // void _Update_SelfCheck();
 
-    class _LedDisplayAPI {
-        friend class RobotSystem;
+    // class _LedDisplayAPI {
+    //     friend class RobotSystem;
 
-    private:
-        RobotSystem &entity;
-        bool display_overlay = false; // 是否覆盖显示，覆盖显示会覆盖所有应用的显示
+    // private:
+    //     RobotSystem &entity;
+    //     bool display_overlay = false; // 是否覆盖显示，覆盖显示会覆盖所有应用的显示
 
-        typedef enum {
-            SysLEDDisp_None,            // 不闪烁，表示系统正常
-            SysLedDisplay_WarningBlink, // 警告闪烁，表示系统出现警告，但不影响比赛继续进行
-            SysLedDisplay_ErrorBlink,   // 错误闪烁，表示系统出现错误，可能会影响比赛继续进行
-        } SysLedDisplayType;
+    //     typedef enum {
+    //         SysLEDDisp_None,            // 不闪烁，表示系统正常
+    //         SysLedDisplay_WarningBlink, // 警告闪烁，表示系统出现警告，但不影响比赛继续进行
+    //         SysLedDisplay_ErrorBlink,   // 错误闪烁，表示系统出现错误，可能会影响比赛继续进行
+    //     } SysLedDisplayType;
 
-        SysLedDisplayType display_type = SysLEDDisp_None; // 当前显示类型
+    //     SysLedDisplayType display_type = SysLEDDisp_None; // 当前显示类型
 
-        uint8_t blink_times = 0;     // 闪烁次数
-        uint16_t blink_interval = 0; // 闪烁间隔，单位为ms
-        uint32_t blink_cnt = 0;      // 闪烁计数器
+    //     uint8_t blink_times = 0;     // 闪烁次数
+    //     uint16_t blink_interval = 0; // 闪烁间隔，单位为ms
+    //     uint32_t blink_cnt = 0;      // 闪烁计数器
 
-    public:
-        _LedDisplayAPI(RobotSystem &sys_entity) : entity(sys_entity) {};
+    // public:
+    //     _LedDisplayAPI(RobotSystem &sys_entity) : entity(sys_entity) {};
 
-        /**
-         * @brief 警告闪烁LED
-         * @param times 闪烁次数
-         * @param interval 闪烁间隔，单位ms，默认400ms
-         */
-        void WarningBlink(uint8_t times, uint16_t interval = 400);
+    //     /**
+    //      * @brief 警告闪烁LED
+    //      * @param times 闪烁次数
+    //      * @param interval 闪烁间隔，单位ms，默认400ms
+    //      */
+    //     void WarningBlink(uint8_t times, uint16_t interval = 400);
 
-        /**
-         * @brief 错误快闪LED
-         * @param times 闪烁次数
-         * @param interval 闪烁间隔，单位ms，默认200ms
-         */
-        void ErrorBlink(uint8_t times, uint16_t interval = 200);
+    //     /**
+    //      * @brief 错误快闪LED
+    //      * @param times 闪烁次数
+    //      * @param interval 闪烁间隔，单位ms，默认200ms
+    //      */
+    //     void ErrorBlink(uint8_t times, uint16_t interval = 200);
 
-    } Display;
+    // } Display;
 
-    /// @brief 机器人当前系统状态
-    Systems::SystemState state = Systems::ORIGIN;
-    /// @brief 机器人所属阵营
-    uint8_t camp = Systems::Camp_Blue;
-    /// @brief 机器人所在区域
-    uint8_t area = Systems::Area_1;
-    /// @brief 机器人控制器类型
-    uint8_t control = Systems::Control_Mcu;
+    // /// @brief 机器人当前系统状态
+    // Systems::SystemState state = Systems::ORIGIN;
+    // /// @brief 机器人所属阵营
+    // uint8_t camp = Systems::Camp_Blue;
+    // /// @brief 机器人所在区域
+    // uint8_t area = Systems::Area_1;
+    // /// @brief 机器人控制器类型
+    // uint8_t control = Systems::Control_Mcu;
 
-    bool is_retrying = false; // 是否正在重试中
+    // bool is_retrying = false; // 是否正在重试中
 
     Application *app_list[24]; // 系统中的应用实例列表
     uint8_t app_count = 0;     // 当前注册的应用实例数量
 
+    OLED sys_oled;
+
 public:
-    bool start_selfcheck_flag = false;      // 是否开始自检的标志
-    bool system_ready_flag = false;         // 系统准备就绪的标志
-    bool system_start_to_work_flag = false; // 系统开始工作的标志
+    // bool start_selfcheck_flag = false;      // 是否开始自检的标志
+    // bool system_ready_flag = false;         // 系统准备就绪的标志
+    // bool system_start_to_work_flag = false; // 系统开始工作的标志
 
     /// @brief 机器人全局位置，单位m，场地坐标系
     // Vec3 position;
@@ -186,10 +189,10 @@ public:
     void Run();
 
     /// @brief 开始工作，进入WORKING状态
-    void Working();
+    // void Working();
 
     /// @brief 高性能运行进程（1000Hz）
-    void PerformanceRun();
+    // void PerformanceRun();
 
     /// @brief 注册应用实例
     bool RegistApp(Application &app_inst);

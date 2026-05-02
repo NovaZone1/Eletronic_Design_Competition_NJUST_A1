@@ -22,10 +22,13 @@
 ////////////////////////////////////////////////////////////////////
 #include "MainFrame.hpp"
 #include "std_cpp.h"
+#include "Follow.hpp"
+#include "System.hpp"
 
 /**
  * @brief 主程序入口
  * @warning 严禁阻塞
  */
 void MainFrameCpp() {
+    System.RegistApp(follow_app);
 }

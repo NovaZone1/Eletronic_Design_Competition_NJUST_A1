@@ -40,7 +40,7 @@ int main(void) {
                           "Application",   /* pcName:        任务名称 */
                           512,             /* uxStackDepth:  栈大小（字） */
                           NULL,            /* pvParameters:  传递给任务的参数 */
-                          1,               /* uxPriority:    任务优先级 */
+                          3,               /* uxPriority:    任务优先级 */
                           NULL             /* pxCreatedTask: 任务句柄（不需要则为NULL） */
     );
     configASSERT(xReturn == pdPASS);
@@ -49,7 +49,7 @@ int main(void) {
                           "RobotSystem",   /* pcName:        任务名称 */
                           512,             /* uxStackDepth:  栈大小（字） */
                           NULL,            /* pvParameters:  传递给任务的参数 */
-                          2,               /* uxPriority:    任务优先级 */
+                          3,               /* uxPriority:    任务优先级 */
                           NULL             /* pxCreatedTask: 任务句柄（不需要则为NULL） */
     );
     configASSERT(xReturn == pdPASS);
@@ -58,7 +58,7 @@ int main(void) {
                           "StateCore",   /* pcName:        任务名称 */
                           1024,          /* uxStackDepth:  栈大小（字） */
                           NULL,          /* pvParameters:  传递给任务的参数 */
-                          3,             /* uxPriority:    任务优先级 */
+                          2,             /* uxPriority:    任务优先级 */
                           NULL           /* pxCreatedTask: 任务句柄（不需要则为NULL） */
     );
     configASSERT(xReturn == pdPASS);

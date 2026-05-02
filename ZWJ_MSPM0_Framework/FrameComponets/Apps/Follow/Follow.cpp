@@ -1,5 +1,7 @@
 #include "Follow.hpp"
 
+Follow &follow_app = Follow::GetInstance();
+
 void Follow::Start() {
     // 初始化超声波
     this->follow_ultrasonic.Init();
