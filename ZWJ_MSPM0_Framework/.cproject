@@ -45,6 +45,7 @@
                                     <listOptionValue value="${PROJECT_ROOT}/FrameComponets/Algorithm/pid"/>
                                     <listOptionValue value="${PROJECT_ROOT}/FrameComponets/Algorithm/std_math"/>
                                     <listOptionValue value="${PROJECT_ROOT}/FrameComponets/Algorithm/linear_math"/>
+                                    <listOptionValue value="${PROJECT_ROOT}/FrameComponets/Apps/Follow"/>
                                     <listOptionValue value="${PROJECT_ROOT}/FrameComponets/Apps/MainFrame"/>
                                     <listOptionValue value="${PROJECT_ROOT}/FrameComponets/Sys/System"/>
                                     <listOptionValue value="${PROJECT_ROOT}/FrameComponets/Sys/StateCore"/>
