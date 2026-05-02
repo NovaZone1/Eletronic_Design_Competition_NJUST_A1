@@ -1,4 +1,8 @@
 #include "SpeedMixer.hpp"
+#include "Track.hpp"
+#include "Follow.hpp"
+#include "Overtake.hpp"
+#include "Navigation.hpp"
 
 SpeedMixer &speed_mixer = SpeedMixer::GetInstance();
 
@@ -28,8 +32,8 @@ void SpeedMixer::SetNavigationSpeed(float left_speed, float right_speed) {
 
 void SpeedMixer::ClearSource(Source source) {
     switch (source) {
-    case Source::LINE_FOLLOW:
-        line_follow.valid = false;
+    case Source::TRACK:
+        track.valid = false;
         break;
     case Source::FOLLOW:
         follow.valid = false;
@@ -46,7 +50,7 @@ void SpeedMixer::ClearSource(Source source) {
 }
 
 void SpeedMixer::ClearAll() {
-    line_follow.valid = false;
+    track.valid = false;
     follow.valid = false;
     overtake.valid = false;
     navigation.valid = false;

@@ -39,13 +39,6 @@ private:
     // 参数配置
     const float MAX_SPEED = 300.0f;
 
-    // ========== 内部方法 ==========
-    /**
-     * @brief 获取当前最高优先级的来源
-     * @return Source 最高优先级来源
-     */
-    Source GetHighestPrioritySource();
-
 public:
     // ========== 速度来源优先级（数字越大优先级越高） ==========
     enum class Source {
@@ -107,4 +100,12 @@ public:
      * @return float 速度(rpm)
      */
     float GetFinalRightSpeed();
+
+private:
+    // ========== 内部方法 ==========
+    /**
+     * @brief 获取当前最高优先级的来源
+     * @return Source 最高优先级来源
+     */
+    Source GetHighestPrioritySource();
 };
