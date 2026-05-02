@@ -126,10 +126,10 @@ GPIO10.associatedPins[0].direction   = "INPUT";
 GPIO10.associatedPins[0].pin.$assign = "PA8";
 
 PWM1.$name                              = "PWM_ULTRASONIC";
-PWM1.clockPrescale                      = 250;
-PWM1.timerCount                         = 64000;
 PWM1.timerStartTimer                    = true;
 PWM1.ccIndex                            = [1];
+PWM1.clockPrescale                      = 20;
+PWM1.timerCount                         = 125;
 PWM1.ccp1PinConfig.direction            = scripting.forceWrite("OUTPUT");
 PWM1.ccp1PinConfig.hideOutputInversion  = scripting.forceWrite(false);
 PWM1.ccp1PinConfig.onlyInternalResistor = scripting.forceWrite(false);
