@@ -42,7 +42,7 @@ private:
     // ========== 内部静态成员：状态图和状态块 ==========
     static StateGraph main_graph;      // 主状态图
     static StateBlock *st_idle;        // 空闲状态
-    static StateBlock *st_line_follow; // 纯巡线状态
+    static StateBlock *st_track;       // 纯巡线状态
     static StateBlock *st_follow;      // 巡线+跟车状态
     static StateBlock *st_overtake;    // 超车状态
     static StateBlock *st_turn_around; // 掉头状态
@@ -57,7 +57,7 @@ private:
     // ========== 状态动作函数：每个状态的执行逻辑 ==========
     // 注意：必须是静态的，因为 StateBlock 的 StateAction 是函数指针
     static void ActionIdle(StateCore *core);
-    static void ActionLineFollow(StateCore *core);
+    static void ActionTrack(StateCore *core);
     static void ActionFollow(StateCore *core);
     static void ActionOvertake(StateCore *core);
     static void ActionTurnAround(StateCore *core);

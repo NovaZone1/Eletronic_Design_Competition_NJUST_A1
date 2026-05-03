@@ -8,7 +8,7 @@
 
 StateGraph MainStateMachine::main_graph("MainGraph");
 StateBlock *MainStateMachine::st_idle = nullptr;
-StateBlock *MainStateMachine::st_line_follow = nullptr;
+StateBlock *MainStateMachine::st_track = nullptr;
 StateBlock *MainStateMachine::st_follow = nullptr;
 StateBlock *MainStateMachine::st_overtake = nullptr;
 StateBlock *MainStateMachine::st_turn_around = nullptr;
@@ -55,7 +55,7 @@ void MainStateMachine::RegisterAllApps() {
 void MainStateMachine::InitStateBlocks() {
     // 1. 添加所有状态块到状态图
     st_idle = &main_graph.AddState("Idle");
-    st_line_follow = &main_graph.AddState("LineFollow");
+    st_track = &main_graph.AddState("Track");
     st_follow = &main_graph.AddState("Follow");
     st_overtake = &main_graph.AddState("Overtake");
     st_turn_around = &main_graph.AddState("TurnAround");
@@ -64,7 +64,7 @@ void MainStateMachine::InitStateBlocks() {
 
     // 2. 绑定每个状态的执行函数
     st_idle->StateAction = ActionIdle;
-    st_line_follow->StateAction = ActionLineFollow;
+    st_track->StateAction = ActionTrack;
     st_follow->StateAction = ActionFollow;
     st_overtake->StateAction = ActionOvertake;
     st_turn_around->StateAction = ActionTurnAround;
@@ -77,28 +77,28 @@ void MainStateMachine::InitStateTransitions() {
     // 注意：用 cond_no_car 代替 &!cond_has_car，解决编译错误
 
     // 空闲 → 巡线
-    st_idle->LinkTo(&cond_start, *st_line_follow);
+    st_idle->LinkTo(&cond_start, *st_track);
 
     // 巡线 ↔ 跟车（双向转换）
-    st_line_follow->LinkTo(&cond_has_car, *st_follow);
-    st_follow->LinkTo(&cond_no_car, *st_line_follow); // 用反向条件
+    st_track->LinkTo(&cond_has_car, *st_follow);
+    st_follow->LinkTo(&cond_no_car, *st_track); // 用反向条件
 
     // 巡线/跟车 → 超车
-    st_line_follow->LinkTo(&cond_dashed_line, *st_overtake);
+    st_track->LinkTo(&cond_dashed_line, *st_overtake);
     st_follow->LinkTo(&cond_dashed_line, *st_overtake);
 
     // 超车 → 跟车
     st_overtake->LinkTo(&cond_overtake_done, *st_follow);
 
     // 巡线/跟车 → 掉头
-    st_line_follow->LinkTo(&cond_finish_line, *st_turn_around);
+    st_track->LinkTo(&cond_finish_line, *st_turn_around);
     st_follow->LinkTo(&cond_finish_line, *st_turn_around);
 
     // 掉头 → 巡线
-    st_turn_around->LinkTo(&cond_turn_done, *st_line_follow);
+    st_turn_around->LinkTo(&cond_turn_done, *st_track);
 
     // 任意状态 → 导航
-    st_line_follow->LinkTo(&cond_nav_start, *st_navigation);
+    st_track->LinkTo(&cond_nav_start, *st_navigation);
     st_follow->LinkTo(&cond_nav_start, *st_navigation);
 
     // 导航 → 结束
@@ -121,14 +121,15 @@ void MainStateMachine::ActionIdle(StateCore *core) {
     speed_mixer.ClearAll();
 
     // 3. 检测开始按键（根据实际硬件修改）
-    // 示例：if (Key_IsPressed(KEY_START)) cond_start = true;
+    cond_start = true;
+    // if (Key_IsPressed(KEY_START)) cond_start = true;
 }
 
 /**
  * @brief 纯巡线状态动作
  * @note 只启用 Track，禁用其他，更新巡线相关条件
  */
-void MainStateMachine::ActionLineFollow(StateCore *core) {
+void MainStateMachine::ActionTrack(StateCore *core) {
     // 1. 启用/禁用对应 App
     track.SetEnable(true);
     follow.SetEnable(false);
@@ -138,7 +139,7 @@ void MainStateMachine::ActionLineFollow(StateCore *core) {
     // 2. 清除不需要的 SpeedMixer 来源
     speed_mixer.ClearSource(SpeedMixer::Source::FOLLOW);
     speed_mixer.ClearSource(SpeedMixer::Source::OVERTAKE);
-    // speed_mixer.ClearSource(SpeedMixer::Source::NAVIGATION);
+    speed_mixer.ClearSource(SpeedMixer::Source::NAVIGATION);
 
     // 3. 更新状态转换条件（从 App 读取标志）
     cond_has_car = (follow.real_dist > 0 && follow.real_dist < 50.0f); // 前方50cm内有车
@@ -164,7 +165,7 @@ void MainStateMachine::ActionFollow(StateCore *core) {
 
     // 3. 更新状态转换条件
     cond_has_car = (follow.real_dist > 0 && follow.real_dist < 50.0f);
-    cond_no_car = !cond_has_car; // 关键：更新反向条件
+    cond_no_car = !cond_has_car; // 更新反向条件
     cond_dashed_line = track.is_dashed_line;
     // cond_finish_line = track.IsFinishLine();
 }
