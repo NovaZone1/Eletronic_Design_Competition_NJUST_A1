@@ -28,6 +28,7 @@ void Track::Start() {
 void Track::Update() {
     if (!is_enabled) {
         ResetController();
+        speed_mixer.ClearSource(SpeedMixer::Source::TRACK);
         return;
     }
 
@@ -36,8 +37,9 @@ void Track::Update() {
 
     float sum_weight = 0.0f;
     float sum_error = 0.0f;
+
     for (int i = 0; i < 8; i++) {
-        float confidence = gray_state[i];
+        float confidence = gray_state[i]; // 白线（亮灯） = 0，黑线（灭灯） = 1
         sum_error += confidence * weights[i];
         sum_weight += confidence;
     }
@@ -46,6 +48,7 @@ void Track::Update() {
         last_status = App::Warning;
         speed_diff = 0.0f; // 重置速度差
         track_pid.Reset(); // 重置PID
+        speed_mixer.SetTrackSpeed(base_speed, 0.0f);
         return;
     }
     last_status = App::Normal;
@@ -60,7 +63,12 @@ void Track::SetEnable(bool enable) {
     if (enable && !is_enabled) {
         ResetController();
     }
+
     is_enabled = enable;
+
+    if (!enable) {
+        speed_mixer.ClearSource(SpeedMixer::Source::TRACK);
+    }
 }
 
 void Track::SetBaseSpeed(float speed) {
@@ -84,27 +92,31 @@ void Track::ProcessGrayData() {
 }
 
 void Track::DetectDashedLine() {
-    bool middle_dark = (gray_state[3] > 0.6f && gray_state[4] > 0.6f);
-    bool side_light = (gray_state[0] < 0.3f && gray_state[7] < 0.3f);
+    // 判断中间两个传感器（黑线正中）是否都为低电平（白线/无黑线）
+    bool gap_detected = (!gray_state[3] && !gray_state[4]);
 
-    if (middle_dark && side_light) {
-        dash_detect_cnt++;
-        if (dash_detect_cnt > DASH_DETECT_THRESH) {
-            dash_detect_cnt = DASH_DETECT_THRESH;
-            is_dashed_line = true;
-        }
+    if (gap_detected) {
+        // 累计空隙帧数
+        if (dash_gap_counter < DASH_GAP_THRESHOLD + DASH_HOLD_FRAMES)
+            dash_gap_counter++;
     } else {
-        if (dash_detect_cnt > 0)
-            dash_detect_cnt--;
-        if (dash_detect_cnt < DASH_RELEASE_THRESH) {
-            is_dashed_line = false;
-        }
+        // 有黑线时衰减计数器（避免短时干扰）
+        if (dash_gap_counter > 0)
+            dash_gap_counter--;
+    }
+
+    // 超过阈值即判定为虚线区域，保持标志至少 DASH_HOLD_FRAMES 帧以免闪现
+    if (dash_gap_counter >= DASH_GAP_THRESHOLD) {
+        is_dashed_line = true;
+    } else if (dash_gap_counter == 0) {
+        // 计数器归零才清除虚线标志（保证连续检测到线一定时间）
+        is_dashed_line = false;
     }
 }
 
 void Track::ResetController() {
     track_pid.Reset();
     speed_diff = 0.0f;
-    dash_detect_cnt = 0;
+    dash_gap_counter = 0;
     is_dashed_line = false;
 }

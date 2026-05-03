@@ -30,16 +30,18 @@ private:
     GpioSensor gray_sensor;
     Pids track_pid;
 
+    // 灰度权重（左负右正，中间靠近0）
     const float weights[8] = {-3.0f, -2.0f, -1.0f, -0.3f, 0.3f, 1.0f, 2.0f, 3.0f}; // 先用着，后面再调
-    bool gray_state[8];
+    bool gray_state[8];                                                            // true=黑线(1), false=白线(0)
 
     float max_speed_diff = 150.0f;
-    float line_threshold = 0.3f; // 巡线灵敏度   数值太大：容易丢线；数值太小：容易误判、抖动
+    // 巡线灵敏度   数值太大：容易丢线；数值太小：容易误判、抖动
+    float line_threshold = 0.3f; // 有效线宽阈值（权重和低于此值视为丢线）
 
-    // 虚线检测防抖计数器
-    uint8_t dash_detect_cnt = 0;           // 虚线检测计数器
-    const uint8_t DASH_DETECT_THRESH = 15; // 虚线触发阈值
-    const uint8_t DASH_RELEASE_THRESH = 5; // 虚线释放阈值
+    // 虚线检测变量
+    uint16_t dash_gap_counter = 0;          // 中间传感器低电平累计帧数
+    const uint16_t DASH_GAP_THRESHOLD = 10; // 低电平帧数阈值(识别为虚线空隙)
+    const uint16_t DASH_HOLD_FRAMES = 20;   // 连续检测到线后保持的帧数(避免抖动)
 
     void ProcessGrayData();  // 处理灰度数据
     void DetectDashedLine(); // 识别虚线
