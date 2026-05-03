@@ -20,6 +20,7 @@ void Follow::Start() {
 void Follow::Update() {
     if (!is_enabled) {
         ResetController();
+        speed_mixer.ClearSource(SpeedMixer::Source::FOLLOW);
         return;
     }
 
@@ -27,6 +28,7 @@ void Follow::Update() {
 
     if (!IsDistanceValid(raw_dist)) {
         last_status = App::Warning;
+        speed_mixer.SetFollowOffset(0.0f); // 清除跟车影响
         return;
     }
     last_status = App::Normal;
@@ -34,14 +36,9 @@ void Follow::Update() {
     float median_dist = Filter::Median(dist_buffer, raw_dist, 5, dist_index);
     filtered_dist = Filter::FirstOrderComplementary(median_dist, last_filtered_dist, 0.4f);
     last_filtered_dist = filtered_dist;
-
     real_dist = filtered_dist;
+
     speed_offset = follow_pid.Calc(targ_dist, real_dist, speed_limit);
-
-    // motor_left.SetSpeed(targ_speed);
-    // motor_right.SetSpeed(targ_speed);
-
-    // 核心改动：调用SpeedMixer设置跟车偏移
     speed_mixer.SetFollowOffset(speed_offset);
 }
 
@@ -49,7 +46,12 @@ void Follow::SetEnable(bool enable) {
     if (enable && !is_enabled) {
         ResetController();
     }
+
     is_enabled = enable;
+
+    if (!enable) {
+        speed_mixer.ClearSource(SpeedMixer::Source::FOLLOW);
+    }
 }
 
 void Follow::SetTargetDistance(float dist) {
