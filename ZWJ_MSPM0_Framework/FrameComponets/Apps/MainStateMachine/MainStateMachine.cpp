@@ -46,10 +46,10 @@ const char *MainStateMachine::GetCurrentStateName() {
 // ========== 内部初始化函数实现 ==========
 void MainStateMachine::RegisterAllApps() {
     // 按顺序注册所有 App 到 System
-    System.RegistApp(track);
-    System.RegistApp(follow);
-    System.RegistApp(overtake);
-    System.RegistApp(navigation);
+    System.RegistApp(track_app);
+    System.RegistApp(follow_app);
+    System.RegistApp(overtake_app);
+    System.RegistApp(navigation_app);
 }
 
 void MainStateMachine::InitStateBlocks() {
@@ -112,10 +112,10 @@ void MainStateMachine::InitStateTransitions() {
  */
 void MainStateMachine::ActionIdle(StateCore *core) {
     // 1. 禁用所有 App
-    track.SetEnable(false);
-    follow.SetEnable(false);
-    overtake.SetEnable(false);
-    navigation.SetEnable(false);
+    track_app.SetEnable(false);
+    follow_app.SetEnable(false);
+    overtake_app.SetEnable(false);
+    navigation_app.SetEnable(false);
 
     // 2. 清除 SpeedMixer 所有速度设置
     speed_mixer.ClearAll();
@@ -131,10 +131,10 @@ void MainStateMachine::ActionIdle(StateCore *core) {
  */
 void MainStateMachine::ActionTrack(StateCore *core) {
     // 1. 启用/禁用对应 App
-    track.SetEnable(true);
-    follow.SetEnable(false);
-    overtake.SetEnable(false);
-    navigation.SetEnable(false);
+    track_app.SetEnable(true);
+    follow_app.SetEnable(false);
+    overtake_app.SetEnable(false);
+    navigation_app.SetEnable(false);
 
     // 2. 清除不需要的 SpeedMixer 来源
     speed_mixer.ClearSource(SpeedMixer::Source::FOLLOW);
@@ -142,9 +142,9 @@ void MainStateMachine::ActionTrack(StateCore *core) {
     speed_mixer.ClearSource(SpeedMixer::Source::NAVIGATION);
 
     // 3. 更新状态转换条件（从 App 读取标志）
-    cond_has_car = (follow.real_dist > 0 && follow.real_dist < 50.0f); // 前方50cm内有车
+    cond_has_car = (follow_app.real_dist > 0 && follow_app.real_dist < 50.0f); // 前方50cm内有车
     cond_no_car = !cond_has_car;                                       // 关键：更新反向条件
-    cond_dashed_line = track.is_dashed_line;
+    cond_dashed_line = track_app.is_dashed_line;
     // cond_finish_line = track.IsFinishLine(); // 需自行实现终点检测
 }
 
@@ -154,19 +154,19 @@ void MainStateMachine::ActionTrack(StateCore *core) {
  */
 void MainStateMachine::ActionFollow(StateCore *core) {
     // 1. 启用/禁用对应 App
-    track.SetEnable(true);
-    follow.SetEnable(true);
-    overtake.SetEnable(false);
-    navigation.SetEnable(false);
+    track_app.SetEnable(true);
+    follow_app.SetEnable(true);
+    overtake_app.SetEnable(false);
+    navigation_app.SetEnable(false);
 
     // 2. 清除不需要的 SpeedMixer 来源
     speed_mixer.ClearSource(SpeedMixer::Source::OVERTAKE);
     speed_mixer.ClearSource(SpeedMixer::Source::NAVIGATION);
 
     // 3. 更新状态转换条件
-    cond_has_car = (follow.real_dist > 0 && follow.real_dist < 50.0f);
+    cond_has_car = (follow_app.real_dist > 0 && follow_app.real_dist < 50.0f);
     cond_no_car = !cond_has_car; // 更新反向条件
-    cond_dashed_line = track.is_dashed_line;
+    cond_dashed_line = track_app.is_dashed_line;
     // cond_finish_line = track.IsFinishLine();
 }
 
@@ -176,10 +176,10 @@ void MainStateMachine::ActionFollow(StateCore *core) {
  */
 void MainStateMachine::ActionOvertake(StateCore *core) {
     // 1. 启用/禁用对应 App
-    track.SetEnable(false);
-    follow.SetEnable(false);
-    overtake.SetEnable(true);
-    navigation.SetEnable(false);
+    track_app.SetEnable(false);
+    follow_app.SetEnable(false);
+    overtake_app.SetEnable(true);
+    navigation_app.SetEnable(false);
 
     // 2. 清除不需要的 SpeedMixer 来源
     speed_mixer.ClearSource(SpeedMixer::Source::TRACK);
@@ -189,12 +189,12 @@ void MainStateMachine::ActionOvertake(StateCore *core) {
     // 3. 启动超车（仅在进入状态时执行一次）
     static bool first_enter = true;
     if (first_enter) {
-        overtake.StartOvertake();
+        overtake_app.StartOvertake();
         first_enter = false;
     }
 
     // 4. 更新完成标志
-    cond_overtake_done = overtake.is_complete;
+    cond_overtake_done = overtake_app.is_complete;
 
     // 5. 退出状态时重置标志
     if (cond_overtake_done) {
@@ -209,10 +209,10 @@ void MainStateMachine::ActionOvertake(StateCore *core) {
  */
 void MainStateMachine::ActionTurnAround(StateCore *core) {
     // 1. 禁用所有 App
-    track.SetEnable(false);
-    follow.SetEnable(false);
-    overtake.SetEnable(false);
-    navigation.SetEnable(false);
+    track_app.SetEnable(false);
+    follow_app.SetEnable(false);
+    overtake_app.SetEnable(false);
+    navigation_app.SetEnable(false);
 
     // 2. 清除 SpeedMixer 所有速度设置
     speed_mixer.ClearAll();
@@ -237,10 +237,10 @@ void MainStateMachine::ActionTurnAround(StateCore *core) {
  */
 void MainStateMachine::ActionNavigation(StateCore *core) {
     // 1. 启用/禁用对应 App
-    track.SetEnable(false);
-    follow.SetEnable(false);
-    overtake.SetEnable(false);
-    navigation.SetEnable(true);
+    track_app.SetEnable(false);
+    follow_app.SetEnable(false);
+    overtake_app.SetEnable(false);
+    navigation_app.SetEnable(true);
 
     // 2. 清除不需要的 SpeedMixer 来源
     speed_mixer.ClearSource(SpeedMixer::Source::TRACK);
@@ -248,7 +248,7 @@ void MainStateMachine::ActionNavigation(StateCore *core) {
     speed_mixer.ClearSource(SpeedMixer::Source::OVERTAKE);
 
     // 3. 更新完成标志
-    cond_nav_done = navigation.is_complete;
+    cond_nav_done = navigation_app.is_complete;
 }
 
 /**
@@ -257,10 +257,10 @@ void MainStateMachine::ActionNavigation(StateCore *core) {
  */
 void MainStateMachine::ActionFinish(StateCore *core) {
     // 1. 禁用所有 App
-    track.SetEnable(false);
-    follow.SetEnable(false);
-    overtake.SetEnable(false);
-    navigation.SetEnable(false);
+    track_app.SetEnable(false);
+    follow_app.SetEnable(false);
+    overtake_app.SetEnable(false);
+    navigation_app.SetEnable(false);
 
     // 2. 清除 SpeedMixer 所有速度设置
     speed_mixer.ClearAll();

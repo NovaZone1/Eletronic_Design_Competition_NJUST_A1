@@ -14,6 +14,12 @@ void SpeedMixer::SetFollowOffset(float speed_offset) {
     follow.valid = true;
 }
 
+void SpeedMixer::SetTurnAroundSpeed(float left_speed, float right_speed) {
+    turn_around.left_speed = left_speed;
+    turn_around.right_speed = right_speed;
+    turn_around.valid = true;
+}
+
 void SpeedMixer::SetOvertakeSpeed(float left_speed, float right_speed) {
     overtake.left_speed = left_speed;
     overtake.right_speed = right_speed;
@@ -34,6 +40,9 @@ void SpeedMixer::ClearSource(Source source) {
     case Source::FOLLOW:
         follow.valid = false;
         break;
+    case Source::TURN_AROUND:
+        turn_around.valid = false;
+        break;
     case Source::OVERTAKE:
         overtake.valid = false;
         break;
@@ -48,6 +57,7 @@ void SpeedMixer::ClearSource(Source source) {
 void SpeedMixer::ClearAll() {
     track.valid = false;
     follow.valid = false;
+    turn_around.valid = false;
     overtake.valid = false;
     navigation.valid = false;
 }
@@ -63,6 +73,9 @@ float SpeedMixer::GetFinalLeftSpeed() {
         break;
     case Source::OVERTAKE:
         left = overtake.left_speed;
+        break;
+    case Source::TURN_AROUND:
+        left = turn_around.left_speed;
         break;
     case Source::FOLLOW:
     case Source::TRACK:
@@ -92,6 +105,9 @@ float SpeedMixer::GetFinalRightSpeed() {
     case Source::OVERTAKE:
         right = overtake.right_speed;
         break;
+    case Source::TURN_AROUND:
+        right = turn_around.right_speed;
+        break;
     case Source::FOLLOW:
     case Source::TRACK:
         // 巡线+跟车模式：基础速度 - 差速 + 跟车偏移
@@ -111,11 +127,12 @@ float SpeedMixer::GetFinalRightSpeed() {
 
 // ========== 内部方法 ==========
 SpeedMixer::Source SpeedMixer::GetHighestPrioritySource() {
-    // 从高到低检查优先级
     if (navigation.valid)
         return Source::NAVIGATION;
     if (overtake.valid)
         return Source::OVERTAKE;
+    if (turn_around.valid)
+        return Source::TURN_AROUND;
     if (follow.valid)
         return Source::FOLLOW;
     if (track.valid)

@@ -46,4 +46,4 @@ public:
     App::Status GetStatus() override;
 };
 
-extern Overtake &overtake;
+extern Overtake &overtake_app;

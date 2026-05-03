@@ -48,4 +48,4 @@ private:
     void ResetController();  // 重置控制器
 };
 
-extern Track &track;
+extern Track &track_app;

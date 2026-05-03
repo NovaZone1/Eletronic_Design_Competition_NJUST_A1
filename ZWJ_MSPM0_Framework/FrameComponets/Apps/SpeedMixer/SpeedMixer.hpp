@@ -28,6 +28,12 @@ private:
         float left_speed = 0.0f;
         float right_speed = 0.0f;
         bool valid = false;
+    } turn_around;
+
+    struct {
+        float left_speed = 0.0f;
+        float right_speed = 0.0f;
+        bool valid = false;
     } overtake;
 
     struct {
@@ -43,10 +49,11 @@ public:
     // ========== 速度来源优先级（数字越大优先级越高） ==========
     enum class Source {
         NONE = 0,
-        TRACK = 1,     // 巡线（基础速度+差速）
-        FOLLOW = 2,    // 跟车（速度偏移）
-        OVERTAKE = 3,  // 超车（直接设置目标速度）
-        NAVIGATION = 4 // 导航（直接设置目标速度，最高优先级）
+        TRACK = 1,       // 巡线（基础速度+差速）
+        FOLLOW = 2,      // 跟车（速度偏移）
+        TURN_AROUND = 3, // 掉头（直接设置目标速度）
+        OVERTAKE = 4,    // 超车（直接设置目标速度）
+        NAVIGATION = 5   // 导航（直接设置目标速度，最高优先级）
     };
 
     // ========== 公共接口：各个App调用这些方法 ==========
@@ -64,7 +71,14 @@ public:
     void SetFollowOffset(float speed_offset);
 
     /**
-     * @brief 设置超车直接速度（高优先级）
+     * @brief 设置掉头直接速度
+     * @param left_speed 左电机速度(rpm)
+     * @param right_speed 右电机速度(rpm)
+     */
+    void SetTurnAroundSpeed(float left_speed, float right_speed);
+
+    /**
+     * @brief 设置超车直接速度
      * @param left_speed 左电机速度(rpm)
      * @param right_speed 右电机速度(rpm)
      */

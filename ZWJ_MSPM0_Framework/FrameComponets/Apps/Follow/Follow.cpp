@@ -1,7 +1,7 @@
 #include "Follow.hpp"
 #include "SpeedMixer.hpp"
 
-Follow &follow = Follow::GetInstance();
+Follow &follow_app = Follow::GetInstance();
 
 void Follow::Start() {
     this->follow_ultrasonic.Init();

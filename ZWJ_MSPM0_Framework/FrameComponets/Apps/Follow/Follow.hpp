@@ -43,4 +43,4 @@ private:
     void ResetController();
 };
 
-extern Follow &follow;
+extern Follow &follow_app;

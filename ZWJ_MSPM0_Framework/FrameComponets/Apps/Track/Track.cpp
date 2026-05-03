@@ -11,7 +11,7 @@ StdSensor::TriggerPolarity polarities[8] = {StdSensor::ACTIVE_HIGH, StdSensor::A
                                             StdSensor::ACTIVE_HIGH, StdSensor::ACTIVE_HIGH, StdSensor::ACTIVE_HIGH,
                                             StdSensor::ACTIVE_HIGH, StdSensor::ACTIVE_HIGH};
 
-Track &track = Track::GetInstance();
+Track &track_app = Track::GetInstance();
 
 void Track::Start() {
     gray_sensor.Init(gray_regs, gray_pins, polarities);

@@ -1,6 +1,6 @@
 #include "Navigation.hpp"
 
-Navigation &navigation = Navigation::GetInstance();
+Navigation &navigation_app = Navigation::GetInstance();
 
 void Navigation::Start() {
 }

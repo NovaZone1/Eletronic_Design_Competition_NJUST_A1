@@ -29,4 +29,4 @@ public:
 private:
 };
 
-extern Navigation &navigation;
+extern Navigation &navigation_app;

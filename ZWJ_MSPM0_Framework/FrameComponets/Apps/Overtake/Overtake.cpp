@@ -1,7 +1,7 @@
 #include "Overtake.hpp"
 #include "SpeedMixer.hpp"
 
-Overtake &overtake = Overtake::GetInstance();
+Overtake &overtake_app = Overtake::GetInstance();
 
 void Overtake::Start() {
     overtake_pid.Init(15.0f, 1.0f, 3.0f, false);
