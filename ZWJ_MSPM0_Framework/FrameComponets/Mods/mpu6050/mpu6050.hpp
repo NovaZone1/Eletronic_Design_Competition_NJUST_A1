@@ -55,6 +55,7 @@ float MPU6050_GetAccelZ(void);
 float MPU6050_GetGroX(void);
 float MPU6050_GetGroY(void);
 float MPU6050_GetGroZ(void);
+float MPU6050Gyro_calibrate(void);
 float MPU6050_Getyaw(void);
 
 
