@@ -35,6 +35,7 @@ public:
     static bool cond_overtake_done; // 超车完成（Overtake 上报）
     static bool cond_finish_line;   // 到达终点线（Track 上报，需自行实现）
     static bool cond_turn_done;     // 掉头完成（自定义标志）
+    static bool cond_return_start;  // 掉头后回到起点（触发停车）
     static bool cond_nav_start;     // 导航开始（按键触发）
     static bool cond_nav_done;      // 导航完成（Navigation 上报）
 

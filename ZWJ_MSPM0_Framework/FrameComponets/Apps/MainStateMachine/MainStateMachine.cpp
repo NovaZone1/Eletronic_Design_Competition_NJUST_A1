@@ -5,6 +5,7 @@
 #include "SpeedMixer.hpp"
 #include "System.hpp"
 #include "Track.hpp"
+#include "TurnAround.hpp"
 
 StateGraph MainStateMachine::main_graph("MainGraph");
 StateBlock *MainStateMachine::st_idle = nullptr;
@@ -17,13 +18,17 @@ StateBlock *MainStateMachine::st_finish = nullptr;
 
 bool MainStateMachine::cond_start = false;
 bool MainStateMachine::cond_has_car = false;
-bool MainStateMachine::cond_no_car = false;
+bool MainStateMachine::cond_no_car = true; // 初始无车
 bool MainStateMachine::cond_dashed_line = false;
 bool MainStateMachine::cond_overtake_done = false;
 bool MainStateMachine::cond_finish_line = false;
 bool MainStateMachine::cond_turn_done = false;
+bool MainStateMachine::cond_return_start = false;
 bool MainStateMachine::cond_nav_start = false;
 bool MainStateMachine::cond_nav_done = false;
+
+// 掉头完成后的返回标志（静态全局）
+static bool has_turned = false;
 
 // ========== 公共接口实现 ==========
 void MainStateMachine::Init() {
@@ -49,6 +54,7 @@ void MainStateMachine::RegisterAllApps() {
     System.RegistApp(track_app);
     System.RegistApp(follow_app);
     System.RegistApp(overtake_app);
+    System.RegistApp(turn_around_app);
     System.RegistApp(navigation_app);
 }
 
@@ -74,14 +80,12 @@ void MainStateMachine::InitStateBlocks() {
 
 void MainStateMachine::InitStateTransitions() {
     // ========== 状态转换链接定义（核心！所有跳转都在这里） ==========
-    // 注意：用 cond_no_car 代替 &!cond_has_car，解决编译错误
-
-    // 空闲 → 巡线
+    // Idle → 巡线
     st_idle->LinkTo(&cond_start, *st_track);
 
-    // 巡线 ↔ 跟车（双向转换）
+    // 巡线 ↔ 跟车
     st_track->LinkTo(&cond_has_car, *st_follow);
-    st_follow->LinkTo(&cond_no_car, *st_track); // 用反向条件
+    st_follow->LinkTo(&cond_no_car, *st_track);
 
     // 巡线/跟车 → 超车
     st_track->LinkTo(&cond_dashed_line, *st_overtake);
@@ -90,19 +94,20 @@ void MainStateMachine::InitStateTransitions() {
     // 超车 → 跟车
     st_overtake->LinkTo(&cond_overtake_done, *st_follow);
 
-    // 巡线/跟车 → 掉头
+    // 巡线/跟车 → 掉头（终点线）
     st_track->LinkTo(&cond_finish_line, *st_turn_around);
     st_follow->LinkTo(&cond_finish_line, *st_turn_around);
 
     // 掉头 → 巡线
     st_turn_around->LinkTo(&cond_turn_done, *st_track);
 
-    // 任意状态 → 导航
-    st_track->LinkTo(&cond_nav_start, *st_navigation);
-    st_follow->LinkTo(&cond_nav_start, *st_navigation);
+    // 巡线 → 结束（掉头后再次遇到起点线）
+    st_track->LinkTo(&cond_return_start, *st_finish);
 
-    // 导航 → 结束
-    st_navigation->LinkTo(&cond_nav_done, *st_finish);
+    // 任意状态 → 导航（暂未启用）
+    // st_track->LinkTo(&cond_nav_start, *st_navigation);
+    // st_follow->LinkTo(&cond_nav_start, *st_navigation);
+    // st_navigation->LinkTo(&cond_nav_done, *st_finish);
 }
 
 // ========== 状态动作函数实现（核心联动逻辑） ==========
@@ -115,14 +120,15 @@ void MainStateMachine::ActionIdle(StateCore *core) {
     track_app.SetEnable(false);
     follow_app.SetEnable(false);
     overtake_app.SetEnable(false);
+    turn_around_app.SetEnable(false);
     navigation_app.SetEnable(false);
 
     // 2. 清除 SpeedMixer 所有速度设置
     speed_mixer.ClearAll();
 
-    // 3. 检测开始按键（根据实际硬件修改）
+    // 3. 立即开始并重置掉头标志
     cond_start = true;
-    // if (Key_IsPressed(KEY_START)) cond_start = true;
+    has_turned = false;
 }
 
 /**
@@ -134,18 +140,23 @@ void MainStateMachine::ActionTrack(StateCore *core) {
     track_app.SetEnable(true);
     follow_app.SetEnable(false);
     overtake_app.SetEnable(false);
+    turn_around_app.SetEnable(false);
     navigation_app.SetEnable(false);
 
     // 2. 清除不需要的 SpeedMixer 来源
     speed_mixer.ClearSource(SpeedMixer::Source::FOLLOW);
     speed_mixer.ClearSource(SpeedMixer::Source::OVERTAKE);
     speed_mixer.ClearSource(SpeedMixer::Source::NAVIGATION);
+    speed_mixer.ClearSource(SpeedMixer::Source::TURN_AROUND);
 
-    // 3. 更新状态转换条件（从 App 读取标志）
-    cond_has_car = (follow_app.real_dist > 0 && follow_app.real_dist < 50.0f); // 前方50cm内有车
-    cond_no_car = !cond_has_car;                                       // 关键：更新反向条件
+    // 3. 更新状态转换条件
+    cond_has_car = (follow_app.real_dist > 0 && follow_app.real_dist < 30.0f);
+    cond_no_car = !cond_has_car;
     cond_dashed_line = track_app.is_dashed_line;
-    // cond_finish_line = track.IsFinishLine(); // 需自行实现终点检测
+    cond_finish_line = track_app.is_finish_line;
+
+    // 返回起点条件：已经掉头过，且再次检测到十字线
+    cond_return_start = (has_turned && track_app.is_finish_line);
 }
 
 /**
@@ -157,17 +168,19 @@ void MainStateMachine::ActionFollow(StateCore *core) {
     track_app.SetEnable(true);
     follow_app.SetEnable(true);
     overtake_app.SetEnable(false);
+    turn_around_app.SetEnable(false);
     navigation_app.SetEnable(false);
 
     // 2. 清除不需要的 SpeedMixer 来源
     speed_mixer.ClearSource(SpeedMixer::Source::OVERTAKE);
     speed_mixer.ClearSource(SpeedMixer::Source::NAVIGATION);
+    speed_mixer.ClearSource(SpeedMixer::Source::TURN_AROUND);
 
     // 3. 更新状态转换条件
-    cond_has_car = (follow_app.real_dist > 0 && follow_app.real_dist < 50.0f);
-    cond_no_car = !cond_has_car; // 更新反向条件
+    cond_has_car = (follow_app.real_dist > 0 && follow_app.real_dist < 30.0f);
+    cond_no_car = !cond_has_car;
     cond_dashed_line = track_app.is_dashed_line;
-    // cond_finish_line = track.IsFinishLine();
+    cond_finish_line = track_app.is_finish_line;
 }
 
 /**
@@ -179,12 +192,14 @@ void MainStateMachine::ActionOvertake(StateCore *core) {
     track_app.SetEnable(false);
     follow_app.SetEnable(false);
     overtake_app.SetEnable(true);
+    turn_around_app.SetEnable(false);
     navigation_app.SetEnable(false);
 
     // 2. 清除不需要的 SpeedMixer 来源
     speed_mixer.ClearSource(SpeedMixer::Source::TRACK);
     speed_mixer.ClearSource(SpeedMixer::Source::FOLLOW);
     speed_mixer.ClearSource(SpeedMixer::Source::NAVIGATION);
+    speed_mixer.ClearSource(SpeedMixer::Source::TURN_AROUND);
 
     // 3. 启动超车（仅在进入状态时执行一次）
     static bool first_enter = true;
@@ -212,22 +227,19 @@ void MainStateMachine::ActionTurnAround(StateCore *core) {
     track_app.SetEnable(false);
     follow_app.SetEnable(false);
     overtake_app.SetEnable(false);
+    turn_around_app.SetEnable(true);
     navigation_app.SetEnable(false);
 
     // 2. 清除 SpeedMixer 所有速度设置
-    speed_mixer.ClearAll();
+    speed_mixer.ClearSource(SpeedMixer::Source::TRACK);
+    speed_mixer.ClearSource(SpeedMixer::Source::FOLLOW);
+    speed_mixer.ClearSource(SpeedMixer::Source::OVERTAKE);
+    speed_mixer.ClearSource(SpeedMixer::Source::NAVIGATION);
 
-    // 3. 执行掉头逻辑（示例：原地转 180 度）
-    static uint32_t turn_timer = 0;
-    if (turn_timer < 200) { // 200Hz 下 1 秒
-        // 直接设置 SpeedMixer 掉头速度
-        speed_mixer.SetOvertakeSpeed(-100, 100);
-        turn_timer++;
-    } else {
-        // 停止
-        speed_mixer.SetOvertakeSpeed(0, 0);
-        cond_turn_done = true;
-        turn_timer = 0;
+    // 3. 执行掉头逻辑
+    cond_turn_done = turn_around_app.is_complete;
+    if (cond_turn_done) {
+        has_turned = true; // 标记已完成掉头，返回时将检测起点
     }
 }
 
@@ -236,18 +248,9 @@ void MainStateMachine::ActionTurnAround(StateCore *core) {
  * @note 只启用 Navigation
  */
 void MainStateMachine::ActionNavigation(StateCore *core) {
-    // 1. 启用/禁用对应 App
-    track_app.SetEnable(false);
-    follow_app.SetEnable(false);
-    overtake_app.SetEnable(false);
+    // 暂空，预留
     navigation_app.SetEnable(true);
-
-    // 2. 清除不需要的 SpeedMixer 来源
-    speed_mixer.ClearSource(SpeedMixer::Source::TRACK);
-    speed_mixer.ClearSource(SpeedMixer::Source::FOLLOW);
-    speed_mixer.ClearSource(SpeedMixer::Source::OVERTAKE);
-
-    // 3. 更新完成标志
+    speed_mixer.ClearAll();
     cond_nav_done = navigation_app.is_complete;
 }
 
@@ -260,6 +263,7 @@ void MainStateMachine::ActionFinish(StateCore *core) {
     track_app.SetEnable(false);
     follow_app.SetEnable(false);
     overtake_app.SetEnable(false);
+    turn_around_app.SetEnable(false);
     navigation_app.SetEnable(false);
 
     // 2. 清除 SpeedMixer 所有速度设置
