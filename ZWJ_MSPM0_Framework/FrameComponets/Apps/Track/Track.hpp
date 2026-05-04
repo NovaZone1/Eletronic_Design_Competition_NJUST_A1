@@ -19,6 +19,7 @@ public:
     float base_speed = 120.0f; // 电机基础速度
 
     bool is_dashed_line = false; // 是否处于虚线
+    bool is_finish_line = false; // 终点/起点线（中间四黑）
     bool is_enabled = true;
     App::Status last_status = App::Normal;
 
@@ -45,6 +46,7 @@ private:
 
     void ProcessGrayData();  // 处理灰度数据
     void DetectDashedLine(); // 识别虚线
+    void DetectFinishLine(); // 检测十字线
     void ResetController();  // 重置控制器
 };
 
