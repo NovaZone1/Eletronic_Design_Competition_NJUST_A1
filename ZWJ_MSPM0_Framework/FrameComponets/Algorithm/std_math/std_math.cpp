@@ -36,7 +36,7 @@ float Vec2::Length() {
  */
 float Vec2::Angle() {
     // 使用atan2函数计算向量的角度，atan2返回值范围是[-π, π]
-    return atan2(this->y, this->x);
+    return atan2(this->x, this->y) * 180.0f / 3.1415926f;
 }
 
 /**
