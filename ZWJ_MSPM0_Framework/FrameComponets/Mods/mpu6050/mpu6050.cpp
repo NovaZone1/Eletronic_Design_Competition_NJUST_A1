@@ -2,6 +2,7 @@
 #include "bsp_delay.h"
 
 static float yaw = 0.0f;
+float gyro_z_offset = 0.0f;
 
 // I2C通信相关的静态函数定义
 // 设置 SCL 引脚电平，并添加延时
@@ -236,6 +237,15 @@ float MPU6050_GetGroY(void) {
 //     return (float) (gyro-63)/131.0f * 12.0f ;                    // 计算角速度值并返回
 // }
 
+float MPU6050Gyro_calibrate(void) {
+    int32_t sum = 0;
+
+    for(int i=0; i<1000; i++) {
+        sum += MPU6050_GetGroZ();
+    }
+    return gyro_z_offset = sum / 1000.0f; // 零偏值
+}
+
 float MPU6050_GetGroZ(void) {
     int16_t gyro;
     uint8_t buf[2]; // 用于存储连续读取的 H 和 L
@@ -246,15 +256,12 @@ float MPU6050_GetGroZ(void) {
     
     // 合并数据（buf[0] 是 H，buf[1] 是 L）
     gyro = (int16_t)((buf[0] << 8) | buf[1]);
-    
-    // 【修改1】去掉临时的 *12.0f
-    // 【修改2】硬编码的 63 暂时保留，等下建议改成动态校准
-    return (float)(gyro - 69) / 131.0f;
+ 
+    return (float)gyro;
 }
 
 float MPU6050_Getyaw(void) {
-
-    yaw += 0.002 * MPU6050_GetGroZ();
+    yaw += 0.002 * (MPU6050_GetGroZ()-gyro_z_offset)/131.0f;
     return 10*yaw;
-    // 间隔5ms
+    // 间隔2ms
 }
