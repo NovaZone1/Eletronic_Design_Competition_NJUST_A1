@@ -113,7 +113,7 @@ void Navigation::ExecuteStep() {
     case STEP_FinishNavi:
         left_speed_cmd = 0.0f;
         right_speed_cmd = 0.0f;
-        speed_mixer.SetNavigationSpeed(left_speed_cmd,right_speed_cmd)
+        speed_mixer.SetNavigationSpeed(left_speed_cmd,right_speed_cmd);
         is_complete = true;
         break;
     }
