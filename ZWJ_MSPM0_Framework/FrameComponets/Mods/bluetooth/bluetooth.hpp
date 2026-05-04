@@ -6,6 +6,7 @@
 void BlueTooth_RxCallback(UART_Regs *uart_regs, uint8_t *rx_data, uint16_t rx_size);
 
 class BlueTooth {
+    friend class Navigation;
     friend void BlueTooth_RxCallback(UART_Regs *uart_regs, uint8_t *rx_data, uint16_t rx_size);
 
 private:
