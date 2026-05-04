@@ -36,13 +36,6 @@ void TurnAround::Update() {
     frame_counter++;
 }
 
-void TurnAround::SetEnable(bool enable) {
-    if (!enable) {
-        speed_mixer.ClearSource(SpeedMixer::Source::TURN_AROUND);
-    }
-    is_enabled = enable;
-}
-
 App::Status TurnAround::GetStatus() {
     return App::Normal;
 }

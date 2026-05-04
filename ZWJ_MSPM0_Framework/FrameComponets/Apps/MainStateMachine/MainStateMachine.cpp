@@ -138,10 +138,13 @@ void MainStateMachine::ActionIdle(StateCore *core) {
 void MainStateMachine::ActionTrack(StateCore *core) {
     // 1. 启用/禁用对应 App
     track_app.SetEnable(true);
-    follow_app.SetEnable(false);
     overtake_app.SetEnable(false);
     turn_around_app.SetEnable(false);
     navigation_app.SetEnable(false);
+
+    // 必须启用 Follow 以便其 Update 被调用，从而更新超声波距离
+    follow_app.SetEnable(true);
+    follow_app.SetOutputEnable(false); // 禁止输出速度偏移
 
     // 2. 清除不需要的 SpeedMixer 来源
     speed_mixer.ClearSource(SpeedMixer::Source::FOLLOW);
@@ -166,10 +169,12 @@ void MainStateMachine::ActionTrack(StateCore *core) {
 void MainStateMachine::ActionFollow(StateCore *core) {
     // 1. 启用/禁用对应 App
     track_app.SetEnable(true);
-    follow_app.SetEnable(true);
     overtake_app.SetEnable(false);
     turn_around_app.SetEnable(false);
     navigation_app.SetEnable(false);
+
+    follow_app.SetEnable(true);
+    follow_app.SetOutputEnable(true); // 允许输出跟车速度偏移
 
     // 2. 清除不需要的 SpeedMixer 来源
     speed_mixer.ClearSource(SpeedMixer::Source::OVERTAKE);

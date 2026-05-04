@@ -14,13 +14,6 @@ void Overtake::Update() {
     ExecuteStep();
 }
 
-void Overtake::SetEnable(bool enable) {
-    if (enable && !is_enabled) {
-        ResetStateMachine();
-    }
-    is_enabled = enable;
-}
-
 void Overtake::StartOvertake() {
     if (is_enabled && current_step == STEP_IDLE) {
         current_step = STEP_ACCELERATE;

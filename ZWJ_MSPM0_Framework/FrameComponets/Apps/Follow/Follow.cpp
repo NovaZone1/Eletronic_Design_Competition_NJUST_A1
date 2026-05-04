@@ -18,40 +18,35 @@ void Follow::Start() {
 }
 
 void Follow::Update() {
-    if (!is_enabled) {
-        ResetController();
+    // 无论是否输出，必须更新距离（供状态机使用）
+    float raw_dist = follow_ultrasonic.GetDistance();
+
+    if (IsDistanceValid(raw_dist)) {
+        float median_dist = Filter::Median(dist_buffer, raw_dist, 5, dist_index);
+        filtered_dist = Filter::FirstOrderComplementary(median_dist, last_filtered_dist, 0.4f);
+        last_filtered_dist = filtered_dist;
+        real_dist = filtered_dist;
+        last_status = App::Normal;
+    } else {
+        real_dist = -1.0f;
+        last_status = App::Warning;
+    }
+
+    if (!output_enabled) {
+        // 不输出时清理速度源，避免残留偏移
+        speed_mixer.SetFollowOffset(0.0f);
         speed_mixer.ClearSource(SpeedMixer::Source::FOLLOW);
         return;
     }
 
-    float raw_dist = follow_ultrasonic.GetDistance();
-
-    if (!IsDistanceValid(raw_dist)) {
-        last_status = App::Warning;
-        speed_mixer.SetFollowOffset(0.0f); // 清除跟车影响
+    // 输出使能时计算 PID 并写入速度偏移
+    if (!IsDistanceValid(real_dist)) {
+        speed_mixer.SetFollowOffset(0.0f);
         return;
     }
-    last_status = App::Normal;
-
-    float median_dist = Filter::Median(dist_buffer, raw_dist, 5, dist_index);
-    filtered_dist = Filter::FirstOrderComplementary(median_dist, last_filtered_dist, 0.4f);
-    last_filtered_dist = filtered_dist;
-    real_dist = filtered_dist;
 
     speed_offset = follow_pid.Calc(targ_dist, real_dist, speed_limit);
     speed_mixer.SetFollowOffset(speed_offset);
-}
-
-void Follow::SetEnable(bool enable) {
-    if (enable && !is_enabled) {
-        ResetController();
-    }
-
-    is_enabled = enable;
-
-    if (!enable) {
-        speed_mixer.ClearSource(SpeedMixer::Source::FOLLOW);
-    }
 }
 
 void Follow::SetTargetDistance(float dist) {

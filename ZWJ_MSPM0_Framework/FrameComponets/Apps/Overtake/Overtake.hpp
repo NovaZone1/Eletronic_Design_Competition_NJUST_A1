@@ -35,13 +35,14 @@ private:
     void ResetStateMachine();
 
 public:
-    bool is_enabled = false;
     bool is_complete = false;
     Step current_step = STEP_IDLE;
     float left_speed_cmd = 0.0f;
     float right_speed_cmd = 0.0f;
 
-    void SetEnable(bool enable);
+    void SetEnable(bool enable) {
+        is_enabled = enable;
+    }
     void StartOvertake();
     App::Status GetStatus() override;
 };

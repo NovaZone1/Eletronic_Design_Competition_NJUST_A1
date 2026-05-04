@@ -2,10 +2,10 @@
 
 #include "SysDefs.hpp"
 #include "System.hpp"
+#include "filter.hpp"
 #include "motor_at8236.hpp"
 #include "pid.hpp"
 #include "ultrasonic.hpp"
-#include "filter.hpp"
 
 class Follow : public Application {
     friend class RobotSystem;
@@ -19,10 +19,15 @@ public:
     float real_dist = 0.0f;
     float targ_dist = 20.0f;
     float speed_offset = 0.0f;
-    bool is_enabled = false;
+    bool output_enabled = false; // 是否允许输出速度偏移（由状态机控制）
     App::Status last_status = App::Normal;
 
-    void SetEnable(bool enable);
+    void SetEnable(bool enable) {
+        is_enabled = enable; // 直接操作基类成员
+    }
+    void SetOutputEnable(bool enable) {
+        output_enabled = enable;
+    }
     void SetTargetDistance(float dist);
     App::Status GetStatus() override;
 

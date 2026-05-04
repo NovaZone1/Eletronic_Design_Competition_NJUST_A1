@@ -3,7 +3,6 @@
 #include "SysDefs.hpp"
 #include "System.hpp"
 
-
 class TurnAround : public Application {
     SINGLETON(TurnAround) : Application("TurnAround") {
         prescaler = 1;
@@ -11,10 +10,11 @@ class TurnAround : public Application {
     APPLICATION_OVERRIDE;
 
 public:
-    bool is_enabled = false;
     bool is_complete = false;
 
-    void SetEnable(bool enable);
+    void SetEnable(bool enable) {
+        is_enabled = enable;
+    }
     App::Status GetStatus() override;
 
 private:

@@ -20,10 +20,11 @@ public:
 
     bool is_dashed_line = false; // 是否处于虚线
     bool is_finish_line = false; // 终点/起点线（中间四黑）
-    bool is_enabled = true;
     App::Status last_status = App::Normal;
 
-    void SetEnable(bool enable);
+    void SetEnable(bool enable) {
+        is_enabled = enable;
+    }
     void SetBaseSpeed(float speed);
     App::Status GetStatus() override;
 

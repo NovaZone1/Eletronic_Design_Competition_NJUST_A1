@@ -60,18 +60,6 @@ void Track::Update() {
     speed_mixer.SetTrackSpeed(base_speed, speed_diff);
 }
 
-void Track::SetEnable(bool enable) {
-    if (enable && !is_enabled) {
-        ResetController();
-    }
-
-    is_enabled = enable;
-
-    if (!enable) {
-        speed_mixer.ClearSource(SpeedMixer::Source::TRACK);
-    }
-}
-
 void Track::SetBaseSpeed(float speed) {
     if (speed < 0)
         speed = 0;
