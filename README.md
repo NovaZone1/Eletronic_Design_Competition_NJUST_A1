@@ -61,6 +61,7 @@ graph TB
     subgraph Algorithm
         PID
         Filter
+        LinearMath
         StdMath
     end
 
@@ -72,7 +73,7 @@ graph TB
 - **Mods 层**：外设模块驱动（电机驱动、超声波、MPU6050、OLED、蓝牙、灰度传感器）。  
 - **Sys 层**：系统级组件，包含全局 `RobotSystem`（任务调度、应用管理、OLED 显示）、`StateCore`（状态机引擎）、`Positioner`（定位，待扩展）。  
 - **Apps 层**：应用控制逻辑，采用 `Application` 基类 + `StateCore` 组合，实现各行驶功能。  
-- **Algorithm 层**：独立的算法工具箱，包括位置式/增量式 PID、前馈控制、多种滤波器、二维/三维向量运算。
+- **Algorithm 层**：独立的算法工具箱，包括位置式/增量式 PID、前馈控制、多种滤波器、二维/三维向量运算、矩阵运算。
 
 ---
 
@@ -81,14 +82,14 @@ graph TB
 | 模块 | 型号 | 说明 |
 |------|------|------|
 | 主控 | MSPM0G3507 (Cortex-M0+ 80MHz) | TI LaunchPad |
-| 电机 | MG513 直流减速电机 (带霍尔编码器) | 减速比 1:30，12V |
-| 电机驱动 | RZ7899 | 持续 6A，通过光耦隔离 |
+| 电机 | JGB37-520 直流减速电机 (带霍尔编码器) | 减速比 1:30，12V |
+| 电机驱动 | AT8236 | 支持 PWM 调速 ，双路驱动 |
 | 超声波 | HC-SR04 (硬件捕获) | 高精度测距 |
 | 陀螺仪 | MPU-6050 (软件 I²C) | 偏航角互补滤波 |
-| 灰度传感器 | 5 × 单路数字灰度 | 巡线及虚线识别 |
+| 灰度传感器 | 八路数字灰度 | 巡线及虚线识别 |
 | 蓝牙 | HC-05 | 与上位机通讯 |
 | OLED | 0.96 寸 I²C | 显示距离、速度、参赛号 |
-| 电源 | 12V 锂电池 + AMS1117-5.0 | 强弱电隔离 |
+| 电源 | 12V 锂电池 + 5V 锂电池 | 强弱电隔离 |
 
 ---
 
@@ -114,7 +115,7 @@ NJUST_SmartCar_2026/
 │   ├── filter.cpp/hpp    # 滑动平均、中值、一阶互补滤波
 │   ├── pid.cpp/hpp       # 位置/增量 PID + 前馈 + 死区
 │   ├── std_math.cpp/hpp  # Vec2/Vec3 向量运算、限幅、转速换算
-│   └── linear_math/      # 线性数学（预留）
+│   └── linear_math/      # 线性代数（矩阵运算）
 ├── Apps/                 # 应用层
 │   ├── MainFrame.cpp/hpp           # 程序入口
 │   ├── MainStateMachine.cpp/hpp    # 主状态机
@@ -137,7 +138,7 @@ NJUST_SmartCar_2026/
 │   ├── oled.cpp/hpp                # OLED 显示
 │   ├── std_sensor.cpp/hpp          # 灰度传感器
 │   ├── ultrasonic.cpp/hpp          # 超声波（捕获/GPIO）
-│   └── vofa/                       # VOFA+ 调试（预留）
+│   └── vofa/                       # VOFA+ 调试
 ├── Bsps/                 # 板级支持包
 │   ├── bsp_system/                 # 系统时钟/DWT
 │   ├── gpio/                       # GPIO 抽象
@@ -152,11 +153,11 @@ NJUST_SmartCar_2026/
 
 ## 💻 软件开发环境
 
-- **IDE**：Code Composer Studio (CCS) / IAR / Keil
+- **IDE**：Code Composer Studio (CCS)
 - **编译器**：TI Arm Clang Compiler
 - **RTOS**：FreeRTOS v202104.00
 - **MSPM0 SDK**：ti_msp_dl_config
-- **调试工具**：VOFA+ 串口示波器 (预留)
+- **调试工具**：VOFA+ 串口示波器
 
 ---
 
@@ -229,9 +230,9 @@ stateDiagram-v2
 ## 🤝 贡献者
 
 项目由南京理工大学 XX 学院 XX 队开发，团队成员：  
-- @member1  
-- @member2  
-- @member3  
+- [zwj051029](https://github.com/zwj051029)
+- [NovaZone1](https://github.com/NovaZone1)  
+- [yekong6663](https://github.com/yekong6663) 
 
 欢迎提交 Issue 和 Pull Request 改进本项目。
 
