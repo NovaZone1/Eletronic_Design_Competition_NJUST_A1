@@ -4,6 +4,7 @@
 #include "ti_msp_dl_config.h"
 
 class PidGeneral {
+    friend class Motor;
 private:
     // 前馈函数类，包含速度前馈和位置前馈两种函数
     class FwdFuncs {
