@@ -8,6 +8,8 @@
 #include "std_sensor.hpp"
 
 class Track : public Application {
+    friend void ControlCpp();
+
     SINGLETON(Track) : Application("Track") {
         prescaler = 1;
     };
@@ -16,11 +18,14 @@ class Track : public Application {
 public:
     float track_error = 0.0f;
     float speed_diff = 0.0f;
-    float base_speed = 60.0f; // 电机基础速度
+    float base_speed = 66.0f; // 电机基础速度
 
     bool is_dashed_line = false; // 是否处于虚线
     bool is_finish_line = false; // 终点/起点线（全部为黑）
     App::Status last_status = App::Normal;
+
+    // 获取指定索引灰度传感器的当前状态（true=黑线）
+    bool GetGrayState(uint8_t index) const;
 
     void SetEnable(bool enable) {
         is_enabled = enable;
@@ -34,7 +39,7 @@ private:
 
     // 灰度权重（左负右正，中间靠近0）
     const float weights[8] = {-12.0f, -6.0f, -1.0f, -0.3f, 0.3f, 1.0f, 6.0f, 12.0f}; // 先用着，后面再调
-    bool gray_state[8];                                                            // true=黑线(1), false=白线(0)
+    bool gray_state[8];                                                              // true=黑线(1), false=白线(0)
 
     float max_speed_diff = 120.0f;
     // 巡线灵敏度   数值太大：容易丢线；数值太小：容易误判、抖动

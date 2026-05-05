@@ -33,8 +33,8 @@ void Track::Update() {
     }
 
     ProcessGrayData();
-    DetectDashedLine();
     DetectFinishLine();
+    DetectDashedLine();
 
     float sum_weight = 0.0f;
     float sum_error = 0.0f;
@@ -105,7 +105,7 @@ void Track::DetectDashedLine() {
 
 void Track::DetectFinishLine() {
     // 判断逻辑：中间四个灰度全黑
-    bool middle_all_black = (gray_state[1] && gray_state[2] && gray_state[3] && gray_state[4] && gray_state[5] && gray_state[6]);
+    bool middle_all_black = (gray_state[0] && gray_state[1] && gray_state[6] && gray_state[7]);
     // 增加短暂防抖：连续检测到若干帧才算有效，避免窄黑线误触发
     static uint8_t finish_cnt = 0;
     if (middle_all_black) {
@@ -115,7 +115,7 @@ void Track::DetectFinishLine() {
         if (finish_cnt > 0)
             finish_cnt--;
     }
-    is_finish_line = (finish_cnt >= 3); // 连续3帧认为有效
+    is_finish_line = (finish_cnt >= 2); // 连续2帧认为有效
 }
 
 void Track::ResetController() {
@@ -124,4 +124,10 @@ void Track::ResetController() {
     dash_gap_counter = 0;
     is_dashed_line = false;
     is_finish_line = false;
+}
+
+bool Track::GetGrayState(uint8_t index) const {
+    if (index < 8)
+        return gray_state[index];
+    return false;
 }

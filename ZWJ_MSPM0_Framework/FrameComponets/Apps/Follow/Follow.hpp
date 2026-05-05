@@ -41,7 +41,7 @@ private:
     float filtered_dist = 0.0f;
     float last_filtered_dist = 0.0f;
 
-    float speed_limit = 150.0f;
+    float speed_limit = 120.0f;
     float min_valid_dist = 5.0f;
     float max_valid_dist = 100.0f;
 

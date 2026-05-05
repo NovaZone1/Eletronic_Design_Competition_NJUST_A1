@@ -4,23 +4,19 @@
 Follow &follow_app = Follow::GetInstance();
 
 void Follow::Start() {
-    this->follow_ultrasonic.Init();
-    this->follow_ultrasonic.Enable();
-
-    for (int i = 0; i < 5; i++) {
+    follow_ultrasonic.Init();
+    follow_ultrasonic.Enable();
+    for (int i = 0; i < 5; i++)
         dist_buffer[i] = -1.0f;
-    }
 
-    // 注意：这里的输出限幅 speed_limit 必须是 rpm 值
-    this->follow_pid.Init(5.0f, 0.2f, 0.5f, false);
-    this->follow_pid.SetLimit(30.0f, speed_limit, 0.5f);
-    this->follow_pid.SetDeadband(1.0f, 3.0f);
+    // 柔和的 PID 参数，反向输出
+    follow_pid.Init(6.0f, 0.2f, 0.8f, true);       // P=6, I=0.2, D=0.8
+    follow_pid.SetLimit(40.0f, speed_limit, 0.8f); // 积分限幅40
+    // follow_pid.SetDeadband(1.5f, 4.0f);           // 死区适度
 }
 
 void Follow::Update() {
-    // 无论是否输出，必须更新距离（供状态机使用）
     float raw_dist = follow_ultrasonic.GetDistance();
-
     if (IsDistanceValid(raw_dist)) {
         float median_dist = Filter::Median(dist_buffer, raw_dist, 5, dist_index);
         filtered_dist = Filter::FirstOrderComplementary(median_dist, last_filtered_dist, 0.4f);
@@ -33,19 +29,35 @@ void Follow::Update() {
     }
 
     if (!output_enabled) {
-        // 不输出时清理速度源，避免残留偏移
         speed_mixer.SetFollowOffset(0.0f);
         speed_mixer.ClearSource(SpeedMixer::Source::FOLLOW);
         return;
     }
 
-    // 输出使能时计算 PID 并写入速度偏移
     if (!IsDistanceValid(real_dist)) {
         speed_mixer.SetFollowOffset(0.0f);
         return;
     }
 
-    speed_offset = follow_pid.Calc(targ_dist, real_dist, speed_limit);
+    // PID 计算
+    float pid_out = follow_pid.Calc(targ_dist, real_dist, speed_limit);
+
+    // 滤波
+    static float last_offset = 0.0f;
+    speed_offset = Filter::FirstOrderComplementary(pid_out, last_offset, 0.6f);
+    last_offset = speed_offset;
+
+    // 近距额外轻刹车，避免过激
+    if (real_dist < 18.0f) {
+        speed_offset -= 20.0f; // 轻刹，防止抖动
+    }
+
+    // 最终限幅：严格控制在 ±60 rpm，防止冲线
+    if (speed_offset > 60.0f)
+        speed_offset = 60.0f;
+    if (speed_offset < -60.0f)
+        speed_offset = -60.0f;
+
     speed_mixer.SetFollowOffset(speed_offset);
 }
 

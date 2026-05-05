@@ -10,12 +10,10 @@
 #include "motor_at8236.hpp"
 #include "std_cpp.h"
 #include "task.h"
-
+#include "MainStateMachine.hpp"
 
 float right_motor_speed = 0.0f;
 float left_motor_speed = 0.0f;
-
-float dist = 0.0f;
 
 /******      主初始化函数      ******/
 /**
@@ -51,7 +49,12 @@ void ControlCpp() {
 
     while (1) {
         right_motor_speed = speed_mixer.GetFinalRightSpeed();
-        left_motor_speed = speed_mixer.GetFinalLeftSpeed();
+        left_motor_speed = speed_mixer.GetFinalLeftSpeed() + 10.0f;
+
+        if (MainStateMachine::cond_return_start) {
+            right_motor_speed = 0.0f;
+            left_motor_speed = 0.0f;
+        }
 
         motor_right.SetSpeed(right_motor_speed);
         motor_left.SetSpeed(left_motor_speed);
@@ -104,7 +107,6 @@ void RobotSystemCpp() {
     while (1) {
         // 运行系统主进程
         System.Run();
-        dist = follow_app.follow_ultrasonic.GetDistance();
 
         /***    最大循环频率：200Hz     ***/
         vTaskDelayUntil(&appTick, pdMS_TO_TICKS(5));

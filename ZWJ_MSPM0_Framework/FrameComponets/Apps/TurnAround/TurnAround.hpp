@@ -19,8 +19,8 @@ public:
 
 private:
     // 掉头参数（根据实车测试调整）
-    static constexpr float ROTATE_SPEED = 100.0f;   // 原地旋转时电机转速 (rpm)
-    static constexpr uint32_t ROTATE_TIME_MS = 960; // 预估 180° 所需时间 (ms)
+    static constexpr float ROTATE_SPEED = 100.0f;    // 原地旋转时电机转速 (rpm)
+    static constexpr uint32_t ROTATE_TIME_MS = 1200; // 预估 180° 所需时间 (ms)
     // 基于200Hz的帧数计算
     static constexpr uint32_t FRAME_PERIOD_MS = 5;                             // 每帧5ms
     static constexpr uint32_t TOTAL_FRAMES = ROTATE_TIME_MS / FRAME_PERIOD_MS; // 总帧数

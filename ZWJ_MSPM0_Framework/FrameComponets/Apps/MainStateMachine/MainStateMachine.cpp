@@ -6,6 +6,7 @@
 #include "System.hpp"
 #include "Track.hpp"
 #include "TurnAround.hpp"
+#include "motor_at8236.hpp"
 
 StateGraph MainStateMachine::main_graph("MainGraph");
 StateBlock *MainStateMachine::st_idle = nullptr;
@@ -153,7 +154,7 @@ void MainStateMachine::ActionTrack(StateCore *core) {
     speed_mixer.ClearSource(SpeedMixer::Source::TURN_AROUND);
 
     // 3. 更新状态转换条件
-    cond_has_car = (follow_app.real_dist > 0 && follow_app.real_dist < 30.0f);
+    cond_has_car = (follow_app.real_dist > 0 && follow_app.real_dist < 40.0f);
     cond_no_car = !cond_has_car;
     cond_dashed_line = track_app.is_dashed_line;
     cond_finish_line = track_app.is_finish_line;
@@ -182,7 +183,7 @@ void MainStateMachine::ActionFollow(StateCore *core) {
     speed_mixer.ClearSource(SpeedMixer::Source::TURN_AROUND);
 
     // 3. 更新状态转换条件
-    cond_has_car = (follow_app.real_dist > 0 && follow_app.real_dist < 30.0f);
+    cond_has_car = (follow_app.real_dist > 0 && follow_app.real_dist < 40.0f);
     cond_no_car = !cond_has_car;
     cond_dashed_line = track_app.is_dashed_line;
     cond_finish_line = track_app.is_finish_line;
@@ -228,23 +229,22 @@ void MainStateMachine::ActionOvertake(StateCore *core) {
  * @note 所有 App 禁用，直接执行掉头逻辑
  */
 void MainStateMachine::ActionTurnAround(StateCore *core) {
-    // 1. 禁用所有 App
-    track_app.SetEnable(false);
+    // 跟踪继续运行（用于更新灰度传感器），但清除巡线速度源
+    track_app.SetEnable(true);
     follow_app.SetEnable(false);
     overtake_app.SetEnable(false);
     turn_around_app.SetEnable(true);
     navigation_app.SetEnable(false);
 
-    // 2. 清除 SpeedMixer 所有速度设置
     speed_mixer.ClearSource(SpeedMixer::Source::TRACK);
     speed_mixer.ClearSource(SpeedMixer::Source::FOLLOW);
     speed_mixer.ClearSource(SpeedMixer::Source::OVERTAKE);
     speed_mixer.ClearSource(SpeedMixer::Source::NAVIGATION);
+    // 不清除 TURN_AROUND，让它生效
 
-    // 3. 执行掉头逻辑
     cond_turn_done = turn_around_app.is_complete;
     if (cond_turn_done) {
-        has_turned = true; // 标记已完成掉头，返回时将检测起点
+        has_turned = true;
     }
 }
 
