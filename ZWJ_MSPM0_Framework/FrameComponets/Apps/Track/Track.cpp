@@ -20,9 +20,9 @@ void Track::Start() {
         gray_state[i] = false;
     }
 
-    track_pid.Init(18.0f, 2.5f, 6.0f, false);
+    track_pid.Init(8.0f, 0.0f, 0.0f, false);
     track_pid.SetLimit(60.0f, max_speed_diff, 0.85f);
-    track_pid.SetDeadband(0.08f, 0.2f);
+    track_pid.SetDeadband(0.1, 0.3);
 }
 
 void Track::Update() {
@@ -105,7 +105,7 @@ void Track::DetectDashedLine() {
 
 void Track::DetectFinishLine() {
     // 判断逻辑：中间四个灰度全黑
-    bool middle_all_black = (gray_state[2] && gray_state[3] && gray_state[4] && gray_state[5]);
+    bool middle_all_black = (gray_state[1] && gray_state[2] && gray_state[3] && gray_state[4] && gray_state[5] && gray_state[6]);
     // 增加短暂防抖：连续检测到若干帧才算有效，避免窄黑线误触发
     static uint8_t finish_cnt = 0;
     if (middle_all_black) {

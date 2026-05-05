@@ -87,12 +87,12 @@ void MainStateMachine::InitStateTransitions() {
     st_track->LinkTo(&cond_has_car, *st_follow);
     st_follow->LinkTo(&cond_no_car, *st_track);
 
-    // 巡线/跟车 → 超车
-    st_track->LinkTo(&cond_dashed_line, *st_overtake);
-    st_follow->LinkTo(&cond_dashed_line, *st_overtake);
+    // // 巡线/跟车 → 超车
+    // st_track->LinkTo(&cond_dashed_line, *st_overtake);
+    // st_follow->LinkTo(&cond_dashed_line, *st_overtake);
 
-    // 超车 → 跟车
-    st_overtake->LinkTo(&cond_overtake_done, *st_follow);
+    // // 超车 → 跟车
+    // st_overtake->LinkTo(&cond_overtake_done, *st_follow);
 
     // 巡线/跟车 → 掉头（终点线）
     st_track->LinkTo(&cond_finish_line, *st_turn_around);
