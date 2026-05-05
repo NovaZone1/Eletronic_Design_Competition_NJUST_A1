@@ -9,6 +9,7 @@
 
 class Follow : public Application {
     friend class RobotSystem;
+    friend void RobotSystemCpp();
 
     SINGLETON(Follow) : Application("Follow") {
         prescaler = 1;

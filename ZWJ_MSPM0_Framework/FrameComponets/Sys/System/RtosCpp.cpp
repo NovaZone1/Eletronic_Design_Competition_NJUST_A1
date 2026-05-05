@@ -1,17 +1,21 @@
 #include "RtosCpp.hpp"
+#include "Follow.hpp"
 #include "FreeRTOS.h"
 #include "MainFrame.hpp"
+#include "SpeedMixer.hpp"
 #include "System.hpp"
 #include "bsp_delay.h"
 #include "bsp_dwt.h"
 #include "bsp_uart.h"
+#include "motor_at8236.hpp"
 #include "std_cpp.h"
 #include "task.h"
-#include "motor_at8236.hpp"
-#include "SpeedMixer.hpp"
+
 
 float right_motor_speed = 0.0f;
 float left_motor_speed = 0.0f;
+
+float dist = 0.0f;
 
 /******      主初始化函数      ******/
 /**
@@ -26,8 +30,8 @@ void MainInitCpp() {
 
     NVIC_EnableIRQ(GPIOA_INT_IRQn);
     NVIC_EnableIRQ(TIMG6_INT_IRQn);
-    
-    //先左后右
+
+    // 先左后右
     motor_left.Init(GPIOA, DL_GPIO_PIN_15, GPIOA, DL_GPIO_PIN_16, TIMG8, DL_TIMER_CC_1_INDEX, GPIOA, DL_GPIO_PIN_23);
     motor_left.Enable();
 
@@ -48,10 +52,10 @@ void ControlCpp() {
     while (1) {
         right_motor_speed = speed_mixer.GetFinalRightSpeed();
         left_motor_speed = speed_mixer.GetFinalLeftSpeed();
-        
+
         motor_right.SetSpeed(right_motor_speed);
         motor_left.SetSpeed(left_motor_speed);
-        
+
         Motor::ControlAllMotors();
         /***     最大循环频率：1000Hz     ***/
         vTaskDelay(pdMS_TO_TICKS(1));
@@ -100,6 +104,7 @@ void RobotSystemCpp() {
     while (1) {
         // 运行系统主进程
         System.Run();
+        dist = follow_app.follow_ultrasonic.GetDistance();
 
         /***    最大循环频率：200Hz     ***/
         vTaskDelayUntil(&appTick, pdMS_TO_TICKS(5));
