@@ -153,6 +153,10 @@ float StdMath::RpmToRadS(float rpm) {
     return rpm * (2.0f * 3.1415926f) / 60.0f;
 }
 
+float StdMath::RpmToMS(float diameter, float rpm) {
+    return (rpm * diameter * PI) / 6000.0f;
+}
+
 /**
  * @brief 转弧度速度转转速
  * @param rad_s 弧度速度

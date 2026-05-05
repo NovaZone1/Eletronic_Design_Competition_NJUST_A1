@@ -233,6 +233,11 @@ namespace StdMath {
     /// @return 弧度速度
     float RpmToRadS(float rpm);
 
+    /// @brief 转速转米每秒速度
+    /// @param rpm 转速 (RPM)
+    /// @return 米每秒速度
+    float RpmToMS(float diameter, float rpm);
+
     /// @brief 弧度速度转转速
     /// @param rad_s 弧度速度
     /// @return

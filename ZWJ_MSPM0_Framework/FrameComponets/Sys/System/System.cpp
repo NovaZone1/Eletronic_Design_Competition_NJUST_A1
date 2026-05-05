@@ -59,15 +59,20 @@ void RobotSystem::Run() {
 
 #ifndef __TASK_1_SHOW__
 #define __TASK_1_SHOW__
-    sys_oled.Show<string>(1, 1, "speed: ");
-    sys_oled.Show<string>(2, 1, "dist : ");
+    sys_oled.Show<string>(1, 1, "right:");
+    sys_oled.Show<string>(2, 1, "left :");
+    sys_oled.Show<string>(3, 1, "dist :");
 
     sys_oled.Show<string>(1, 13, "m/s");
-    sys_oled.Show<string>(2, 14, "cm");
+    sys_oled.Show<string>(2, 13, "m/s");
+    sys_oled.Show<string>(3, 13, "cm");
+
+    sys_oled.Show<string>(4, 6, "A1NJ48");
 #endif
 
-    sys_oled.Show<float>(1, 8, 3.14);
-    sys_oled.Show<float>(2, 8, follow_app.real_dist);
+    sys_oled.Show<float>(1, 7, StdMath::RpmToMS(6.5, motor_right.current_speed));
+    sys_oled.Show<float>(2, 7, StdMath::RpmToMS(6.5, -motor_left.current_speed));
+    sys_oled.Show<float>(3, 7, follow_app.real_dist);
 
     // 零开销巡检所有 App 状态
     // for (int i = 0; i < 24; i++) {
