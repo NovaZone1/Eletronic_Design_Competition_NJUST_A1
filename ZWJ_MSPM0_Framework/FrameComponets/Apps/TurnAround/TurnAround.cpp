@@ -12,6 +12,7 @@ void TurnAround::Update() {
     if (!is_enabled) {
         speed_mixer.ClearSource(SpeedMixer::Source::TURN_AROUND);
         first_enter = true;
+        valid_cnt = 0;
         frame_counter = 0;
         is_complete = false;
         return;
@@ -19,16 +20,19 @@ void TurnAround::Update() {
 
     if (first_enter) {
         first_enter = false;
+        valid_cnt = 0;
         frame_counter = 0;
         is_complete = false;
     }
 
     if (frame_counter >= TOTAL_FRAMES) {
-        if (track_app.GetGrayState(0) && !track_app.GetGrayState(5) && !track_app.GetGrayState(6) &&
-            !track_app.GetGrayState(7)) {
-            speed_mixer.SetTurnAroundSpeed(0.0f, 0.0f);
-            is_complete = true;
-            return;
+        if ((track_app.GetGrayState(0) || track_app.GetGrayState(1) || track_app.GetGrayState(2)) &&
+            !track_app.GetGrayState(5) && !track_app.GetGrayState(6) && !track_app.GetGrayState(7)) {
+            if ((++valid_cnt) >= 3) {
+                speed_mixer.SetTurnAroundSpeed(0.0f, 0.0f);
+                is_complete = true;
+                return;
+            }
         }
     }
 
