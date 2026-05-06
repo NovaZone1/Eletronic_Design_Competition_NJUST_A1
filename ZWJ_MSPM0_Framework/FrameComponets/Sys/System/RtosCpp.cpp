@@ -12,7 +12,7 @@
 #include "std_cpp.h"
 #include "task.h"
 
-#define SPEED_DIFF 10.0f
+#define SPEED_DIFF 15.0f
 
 float right_motor_speed = 0.0f;
 float left_motor_speed = 0.0f;
@@ -111,20 +111,6 @@ void RobotSystemCpp() {
         System.Run();
 
         /***    最大循环频率：200Hz     ***/
-        vTaskDelayUntil(&appTick, pdMS_TO_TICKS(5));
-    }
-}
-
-/**
- * @brief 机器人定位模块任务（500Hz）
- * @note 该任务负责机器人的定位数据更新
- */
-void PositionerCpp() {
-    TickType_t appTick = xTaskGetTickCount();
-
-    while (1) {
-
-        /***     最大循环频率：200Hz     ***/
         vTaskDelayUntil(&appTick, pdMS_TO_TICKS(5));
     }
 }
