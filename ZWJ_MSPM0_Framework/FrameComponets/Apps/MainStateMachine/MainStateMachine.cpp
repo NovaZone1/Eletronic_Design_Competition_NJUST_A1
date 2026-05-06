@@ -144,7 +144,7 @@ void MainStateMachine::ActionTrack(StateCore *core) {
     speed_mixer.ClearSource(SpeedMixer::Source::TURN_AROUND);
 
     // 3. 更新状态转换条件
-    cond_has_car = (follow_app.real_dist > 0 && follow_app.real_dist < 40.0f);
+    cond_has_car = (follow_app.real_dist > 0 && follow_app.real_dist < 50.0f);
     cond_no_car = !cond_has_car;
     cond_dashed_line = track_app.is_dashed_line;
     cond_finish_line = track_app.is_finish_line;
@@ -173,7 +173,7 @@ void MainStateMachine::ActionFollow(StateCore *core) {
     speed_mixer.ClearSource(SpeedMixer::Source::TURN_AROUND);
 
     // 3. 更新状态转换条件
-    cond_has_car = (follow_app.real_dist > 0 && follow_app.real_dist < 40.0f);
+    cond_has_car = (follow_app.real_dist > 0 && follow_app.real_dist < 50.0f);
     cond_no_car = !cond_has_car;
     cond_dashed_line = track_app.is_dashed_line;
     cond_finish_line = track_app.is_finish_line;
