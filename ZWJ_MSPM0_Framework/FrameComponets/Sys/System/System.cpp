@@ -1,6 +1,7 @@
 #include "System.hpp"
 #include "Follow.hpp"
 #include "bsp_dwt.h"
+#include "motor_at8236.hpp"
 
 #define DIST_DIFF 10.0f
 
