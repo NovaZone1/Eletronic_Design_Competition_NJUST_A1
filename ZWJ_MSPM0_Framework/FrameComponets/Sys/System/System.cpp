@@ -75,7 +75,11 @@ void RobotSystem::Run() {
 
     sys_oled.Show<float>(1, 7, StdMath::RpmToMS(6.5, motor_right.current_speed));
     sys_oled.Show<float>(2, 7, StdMath::RpmToMS(6.5, -motor_left.current_speed));
-    sys_oled.Show<float>(3, 7, (follow_app.real_dist - DIST_DIFF));
+    if (follow_app.real_dist == -1) {
+        sys_oled.Show<float>(3, 7, (follow_app.real_dist));
+    } else {
+        sys_oled.Show<float>(3, 7, (follow_app.real_dist - DIST_DIFF));
+    }
 
     // 零开销巡检所有 App 状态
     // for (int i = 0; i < 24; i++) {
