@@ -18,7 +18,7 @@ class Follow : public Application {
 
 public:
     float real_dist = 0.0f;
-    float targ_dist = 30.0f;
+    float targ_dist = 20.0f;
     float speed_offset = 0.0f;
     bool output_enabled = false; // 是否允许输出速度偏移（由状态机控制）
     App::Status last_status = App::Normal;
@@ -41,7 +41,7 @@ private:
     float filtered_dist = 0.0f;
     float last_filtered_dist = 0.0f;
 
-    float speed_limit = 120.0f;
+    float speed_limit = 180.0f;
     float min_valid_dist = 5.0f;
     float max_valid_dist = 100.0f;
 

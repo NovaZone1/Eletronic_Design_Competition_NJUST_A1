@@ -49,11 +49,11 @@ void Follow::Update() {
     last_offset = speed_offset;
 
     // 根据距离强制限制最大基础速度（核心修复）
-    if (real_dist < 25.0f) {
-        track_app.SetBaseSpeed(20.0f); // 极低速
+    if (real_dist < 30.0f) {
+        track_app.SetBaseSpeed(16.0f); // 极低速
         speed_offset -= 40.0f;         // 额外强刹
-    } else if (real_dist < 30.0f) {
-        track_app.SetBaseSpeed(40.0f); // 中低速
+    } else if (real_dist < 35.0f) {
+        track_app.SetBaseSpeed(32.0f); // 中低速
         speed_offset -= 20.0f;         // 轻度刹车
     } else {
         track_app.SetBaseSpeed(66.0f); // 恢复原基础速度
@@ -71,8 +71,8 @@ void Follow::Update() {
 void Follow::SetTargetDistance(float dist) {
     if (dist < 10.0f)
         dist = 10.0f;
-    if (dist > 50.0f)
-        dist = 50.0f;
+    if (dist > 60.0f)
+        dist = 60.0f;
     targ_dist = dist;
 }
 
