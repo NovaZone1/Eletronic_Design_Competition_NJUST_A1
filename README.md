@@ -1,4 +1,4 @@
-# <center>🚗 NJUST SmartCar 2026</center>
+<h1 align="center">🚗 NJUST SmartCar 2026 </h1>
 
 [![Platform](https://img.shields.io/badge/MCU-MSPM0G3507-blue)](https://www.ti.com/product/MSPM0G3507)
 [![RTOS](https://img.shields.io/badge/RTOS-FreeRTOS-green)](https://www.freertos.org/)
