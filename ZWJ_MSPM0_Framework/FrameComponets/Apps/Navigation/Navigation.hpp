@@ -48,6 +48,7 @@ public:
     float left_speed_cmd = 0.0f;
     float right_speed_cmd = 0.0f;
 
+    bool is_vaild = false;
     bool is_no_enter = true;
     float first_enter_time = 0.0f;
 

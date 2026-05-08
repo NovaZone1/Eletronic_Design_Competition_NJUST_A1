@@ -35,6 +35,7 @@ void Navigation::ExecuteStep() {
     case STEP_IDLE:
         if (this->bluetooth.rx_buf[0] == 0xFF) {
             this->bluetooth.rx_buf[0] = 0;
+            is_vaild = true;
             current_step = STEP_Recievex;
         }
         break;

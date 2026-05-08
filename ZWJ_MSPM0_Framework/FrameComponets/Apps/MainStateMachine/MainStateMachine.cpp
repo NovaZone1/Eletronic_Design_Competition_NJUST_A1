@@ -99,6 +99,9 @@ void MainStateMachine::InitStateTransitions() {
     // st_track->LinkTo(&cond_dashed_line, *st_overtake);
     // st_follow->LinkTo(&cond_dashed_line, *st_overtake);
     // st_overtake->LinkTo(&cond_overtake_done, *st_follow);
+
+    // 第一阶段完成 → 导航
+    st_finish->LinkTo(&cond_nav_start, *st_navigation);
 }
 
 // ========== 状态动作函数实现（核心联动逻辑） ==========
@@ -243,9 +246,20 @@ void MainStateMachine::ActionTurnAround(StateCore *core) {
  * @note 只启用 Navigation
  */
 void MainStateMachine::ActionNavigation(StateCore *core) {
-    // 暂空，预留
+    // 1. 启用/禁用对应 App
+    track_app.SetEnable(false);
+    follow_app.SetEnable(false);
+    overtake_app.SetEnable(false);
+    turn_around_app.SetEnable(false);
     navigation_app.SetEnable(true);
-    speed_mixer.ClearAll();
+
+    // 2. 清除所有其他速度源，Navigation 会自行设置速度
+    speed_mixer.ClearSource(SpeedMixer::Source::TRACK);
+    speed_mixer.ClearSource(SpeedMixer::Source::FOLLOW);
+    speed_mixer.ClearSource(SpeedMixer::Source::OVERTAKE);
+    speed_mixer.ClearSource(SpeedMixer::Source::TURN_AROUND);
+
+    // 3. 更新完成标志
     cond_nav_done = navigation_app.is_complete;
 }
 
@@ -260,8 +274,11 @@ void MainStateMachine::ActionFinish(StateCore *core) {
     follow_app.SetEnable(false);
     overtake_app.SetEnable(false);
     turn_around_app.SetEnable(false);
-    navigation_app.SetEnable(false);
+    navigation_app.SetEnable(true); // 需要检测导航是否收到消息
 
     // 2. 清除 SpeedMixer 所有速度设置
     speed_mixer.ClearAll();
+
+    // 3. 检测是否进入导航
+    cond_nav_start = navigation_app.is_vaild;
 }
