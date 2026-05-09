@@ -38,7 +38,7 @@ private:
     Pids track_pid;
 
     // 灰度权重（左负右正，中间靠近0）
-    const float weights[8] = {-12.0f, -6.0f, -1.0f, -0.3f, 0.3f, 1.0f, 6.0f, 12.0f}; // 先用着，后面再调
+    const float weights[8] = {-9.0f, -6.0f, -1.0f, -0.3f, 0.3f, 1.0f, 6.0f, 9.0f}; // 先用着，后面再调
     bool gray_state[8];                                                              // true=黑线(1), false=白线(0)
 
     float max_speed_diff = 120.0f;
